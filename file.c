@@ -104,42 +104,40 @@ int CheckFile(const char * path) {
 
         int element = fgetc(file);
         if (element == EOF) {               // tjekker om filen er tom
-            printf("%s: empty \n", path);
+            printf("%s: empty\n", path);
             fclose(file);
             return 0;
         }
 
       
         else if (CheckIfAscii(file) <= 0) {
-                if ((CheckIfISO(file)) <= 0) {
-                    printf("%s: ISO\n", path);
-                    return 0;
-                }
-                  
-            
-            else
-                printf("%s: ASCII\n", path);
-                return 0;
-
-                
-
-                return 1;
-        }
-        else if (CheckIfUTF8(file) <= 0) {
-          printf("%s: UTF-8\n", path);
+          printf("%s: ASCII text\n", path);
           return 0;
         }
+        else if (CheckIfUTF8(file) <= 0) {
+          printf("%s: UTF-8 Unicode text\n", path);
+          return 0;
+        }
+        
+        else if ((CheckIfISO(file)) <= 0) {
+            printf("%s: ISO-8859 text\n", path);
+            return 0;
+        }
 
-        else 
+        
+
+
+        else
           printf("%s: data\n", path);
           return 0;
                 
     }
     else
-        {
-            printf("Filen eksisterer ikke \n" );
-            return 1;
-        }
+        
+      printf("Filen eksisterer ikke\n" );
+      return 1;
+        
+  
 }
 
 
@@ -154,8 +152,6 @@ int main(int argc, char* argv[]) {
 
     
     return CheckFile(argv[1]);
-    
-
     
 }
 
