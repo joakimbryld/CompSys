@@ -6,8 +6,11 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
+ 
+make: *** No rule to make target `all'.  Stop.
+ 
 
-# Make data base, printed on Sun Sep 19 12:07:22 2021
+# Make data base, printed on Wed Sep 22 15:33:07 2021
 
 # Variables
 
@@ -31,20 +34,20 @@ SHELL = /bin/sh
 VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
 # environment
 _ = /usr/bin/make
-# makefile (from `Makefile', line 2)
-CFLAGS = -std=c11 -Wall -Werror -Wextra -pedantic -g
-# makefile (from `Makefile', line 1)
-MAKEFILE_LIST :=  Makefile
+# makefile
+MAKEFILE_LIST := 
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/8x/kkk8_zjj2gl_ql9n04l8h9fr0000gn/T/vscode-ipc-8b871102-1046-4652-afbb-eb2a8b93b88f.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/8x/kkk8_zjj2gl_ql9n04l8h9fr0000gn/T/vscode-ipc-cbe7340f-16a3-48cd-8c32-ecacaa5c277c.sock
 # environment
 VSCODE_CWD = /
 # environment
 PATH = /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands
+# environment
+LaunchInstanceID = 35B2C51A-B481-415B-8E68-79AFE0BC14F4
 # environment
 VSCODE_LOG_STACK = false
 # environment
@@ -52,7 +55,7 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.0qgyDTtPx1/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.ZXHm705kWh/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -85,14 +88,12 @@ MAKE = $(MAKE_COMMAND)
 MAKECMDGOALS := all
 # environment
 SHLVL = 1
-# makefile (from `Makefile', line 1)
-CC = gcc
 # default
 MAKE_VERSION := 3.81
 # environment
 USER = jacob
 # makefile
-.DEFAULT_GOAL := file
+.DEFAULT_GOAL := 
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # default
@@ -127,6 +128,8 @@ MAKEFILES :=
 <F = $(notdir $<)
 # environment
 LC_ALL = C
+# environment
+SECURITYSESSIONID = 186a9
 # automatic
 ^F = $(notdir $^)
 # default
@@ -138,9 +141,9 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 27598
+VSCODE_PID = 1130
 # variable set hash-table stats:
-# Load=64/1024=6%, Rehash=0, Collisions=1/88=1%
+# Load=64/1024=6%, Rehash=0, Collisions=1/85=1%
 
 # Pattern-specific Variable Values
 
@@ -148,7 +151,7 @@ VSCODE_PID = 27598
 
 # Directories
 
-# . (device 16777223, inode 9062732): 7 files, no impossibilities.
+# . (device 16777221, inode 9062732): 7 files, no impossibilities.
 
 # 7 files, no impossibilities in 1 directories.
 
@@ -175,20 +178,23 @@ all:
 
 # Not a target:
 Makefile:
+#  A default, MAKEFILES, or -include/sinclude makefile.
 #  Implicit rule search has been done.
-#  Last modified 2021-09-19 12:02:09
+#  File does not exist.
 #  File has been updated.
-#  Successfully updated.
+#  Failed to be updated.
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
-file: file.c
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  commands to execute (from `Makefile', line 5):
-	$(CC) -o file file.c $(CFLAGS)
-	
+# Not a target:
+makefile:
+#  A default, MAKEFILES, or -include/sinclude makefile.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 # Not a target:
 .DEFAULT:
@@ -197,26 +203,28 @@ file: file.c
 #  File has not been updated.
 
 # Not a target:
-file.c:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
+GNUmakefile:
+#  A default, MAKEFILES, or -include/sinclude makefile.
+#  Implicit rule search has been done.
+#  File does not exist.
+#  File has been updated.
+#  Failed to be updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 # files hash-table stats:
-# Load=6/1024=1%, Rehash=0, Collisions=0/19=0%
+# Load=6/1024=1%, Rehash=0, Collisions=0/17=0%
 # VPATH Search Paths
 
 # No `vpath' search paths.
 
 # No general (`VPATH' variable) search path.
 
-# # of strings in strcache: 1
-# # of strcache buffers: 1
-# strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
-# strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
+# # of strings in strcache: 0
+# # of strcache buffers: 0
+# strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
+# strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Sun Sep 19 12:07:22 2021
+# Finished Make data base on Wed Sep 22 15:33:07 2021
 
- 
-make: *** No rule to make target `all'.  Stop.
  
