@@ -15,13 +15,14 @@ struct indexed_data {
     int n;
 };
 
-int comp (const void * a, const void * b) {
-    const struct index_record *a1 = a;
-    const struct index_record *b1 = b;
 
-    return  (a1->osm_id - b1->osm_id);
+int compare_id (const void * a, const void * b) // fra nettet
+{
+  struct index_record *data_1 = (struct index_record *)a;
+  struct index_record *data_2 = (struct index_record *)b;
+  return ( data_1->osm_id - data_2->osm_id);
+}
 
-} 
 
 
 struct indexed_data* mk_indexedBin(struct record* rs, int n) {
@@ -37,8 +38,7 @@ struct indexed_data* mk_indexedBin(struct record* rs, int n) {
 
     data->irs = irs;
     data->n = n;
-    qsort(data, n, sizeof(struct index_record), comp);
-   
+    
     return data;
     
 }
@@ -49,11 +49,40 @@ void free_indexedBin(struct indexed_data* data) {
   }
 }
 
+const struct record* binarySearch(struct indexed_data *data, int l, int r, int64_t x) // taget fra nettet
+{
+    if (r >= l) {
+        int mid = l + (r - l) / 2;
+  
+        // If the element is present at the middle
+        // itself
+        if (data->irs[mid].osm_id == x)
+            return data->irs[mid].record;
+  
+        // If element is smaller than mid, then
+        // it can only be present in left subarray
+        if (data->irs[mid].osm_id > x)
+            return binarySearch(data, l, mid - 1, x);
+  
+        // Else the element can only be present
+        // in right subarray
+        return binarySearch(data, mid + 1, r, x);
+    }
+  
+    // We reach here when element is not
+    // present in array
+    return NULL;
+}
+
+
+// https://www.geeksforgeeks.org/binary-search/
+
+
 const struct record* lookup_indexedBin(struct indexed_data *data, int64_t needle) {
-    
   if (data != NULL) {
-    bsearch(&needle, data, sizeof(struct index_record), data->n, comp);
-    
+    qsort(data, data->n, sizeof(struct index_record), compare_id);
+    binarySearch(data, 0, data->n-1, needle);
+
   }
   return NULL;
 }
@@ -64,5 +93,8 @@ int main(int argc, char** argv) {
                     (free_index_fn)free_indexedBin,
                     (lookup_fn)lookup_indexedBin);
 }
+
+
+
 
 
