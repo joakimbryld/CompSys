@@ -23,8 +23,6 @@ int compare_id(const void *p, const void *q) // fra nettet
     if (l < r) {return -1; }
     if (l > r) {return 1; }
     return 0;
-
-    
     
 }
 
@@ -42,7 +40,7 @@ struct indexed_data* mk_indexedBin(struct record* rs, int n) {
   data->n = n;
   qsort(data->irs, data->n, sizeof(struct index_record), compare_id);
   return data;
-    
+  
 }
 
 void free_indexedBin(struct indexed_data* data) {
