@@ -60,8 +60,8 @@ struct node* mk_kdtree(struct record* rs, int depth, int n) {
     int axis = depth % 2;
 
     curr->axis = axis;
-    int new_n1;
-    int new_n2;
+    // int new_n1;
+    // int new_n2;
 
     if (n==1){
     curr->lat= rs->lat;
@@ -79,6 +79,8 @@ struct node* mk_kdtree(struct record* rs, int depth, int n) {
         qsort(rs,(size_t)n, (size_t)sizeof(struct record), compare_lat);
     }
 
+    
+    return NULL;
 }
 
 void free_kdtree(struct node* data) {
