@@ -53,8 +53,9 @@ const struct record* binarySearch(struct indexed_data *data, int l, int r, int64
 {
     if (r >= l) {
         int mid = l + (r - l) / 2;
-
+        printf("%lld \n", data->irs[mid].osm_id);
         if (data->irs[mid].osm_id == x)
+            
             return data->irs[mid].record;
   
         if (data->irs[mid].osm_id > x)

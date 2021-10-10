@@ -1,6 +1,7 @@
 {
     "makefile.extensionOutputFolder": "./.vscode",
     "files.associations": {
-        "coord_query.h": "c"
+        "coord_query.h": "c",
+        "__node_handle": "c"
     }
 }

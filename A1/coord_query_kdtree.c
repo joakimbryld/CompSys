@@ -5,90 +5,176 @@
 #include <stdint.h>
 #include <errno.h>
 #include <assert.h>
+#include <float.h>
 #include <math.h>
-
 #include "record.h"
 #include "coord_query.h"
 
-struct index_record {
-    double lon;
+struct node{
+    struct record *rs;
     double lat;
-    const struct record *record;
-};
-
-struct indexed_data {
-    struct index_record *irs;
-    int n;
-};
-
-struct node {
-    int point;
-    int axis;
     double lon;
-    double lat;
-    struct node* left;
-    struct node* right;
-    struct record* rec;
+    struct node *left, *right;
+    int ax;
 };
 
-int compare_lon(const void *p, const void *q) // fra nettet
+
+struct k2Tree
 {
-    
-    int64_t l = ((struct index_record *)p)->lon;
-    int64_t r = ((struct index_record *)q)->lon;
-    if (l < r) {return -1; }
-    if (l > r) {return 1; }
-    return 0;
-    
+  struct node* root;
+};
+
+struct nearest_node{
+    struct node *node;
+    double dst;
+};
+
+
+
+int ax = 0;
+
+static int cmp (const void * a, const void * b)
+{ 
+  double ra, rb;
+
+  if(ax==1)
+  {
+    ra = ((struct node*)a)->lat;
+    rb = ((struct node*)b)->lat;
+  }
+  else{
+    ra = ((struct node*)a)->lon;
+    rb = ((struct node*)b)->lon;
+  }
+  
+  if (ra > rb) return 1;
+  else if (ra < rb) return -1;
+  else return 0;  
 }
 
-int compare_lat(const void *p, const void *q) // fra nettet
+struct node*
+   med(struct node *start, int n){
+     qsort(start, n, sizeof(struct node), &cmp);
+     return (start)+n/2;
+}
+
+struct node* recMk_kdtree(struct node* start, int n, int depth){
+  ax = depth%2;
+  struct node* mediantmp = med(start, n);
+  struct node* median = malloc((sizeof(struct node)));
+  median->lat = mediantmp->lat;
+  median->lon = mediantmp->lon;
+  median->rs = mediantmp->rs;
+  
+  median->ax = ax;
+  if((mediantmp-(start))>0){  
+    median->left = recMk_kdtree(start, (mediantmp-(start)), (depth+1));
+    }
+  else
+  {
+    median->left = NULL;
+  }
+
+  if((n-1)/2>0)
+  { 
+    median->right = recMk_kdtree(mediantmp+1, (n-1)/2, (depth+1));
+  }
+  else{
+    median->right = NULL;
+  }
+  return median;
+}
+
+
+struct k2Tree* mk_kdtree(struct record* rs, int n) {
+  struct k2Tree* kdtree = (struct k2Tree*)malloc(sizeof(struct k2Tree));
+  struct node* nodeN = malloc(n*(sizeof(struct node)));
+  for (int i = 0; i<n; i++) {
+        nodeN[i].rs = &rs[i];
+        nodeN[i].lat = rs[i].lat;
+        nodeN[i].lon = rs[i].lon;
+    }
+
+
+  struct node* treeroot = recMk_kdtree(nodeN, n, 0);
+  kdtree->root = treeroot;
+  free(nodeN);
+  return kdtree;
+}
+
+double dst(struct node* node, double lon, double lat){
+ return sqrt(pow(lat- (node->lat),2) + pow(lon- (node->lon),2));
+}
+
+double getdiff(struct node* node, double lon, double lat)
 {
-    
-    int64_t l = ((struct index_record *)p)->lon;
-    int64_t r = ((struct index_record *)q)->lon;
-    if (l < r) {return -1; }
-    if (l > r) {return 1; }
-    return 0;
-    
+  if(node->ax==1)
+  {
+    return (node->lat -lat);
+  }
+  else{
+    return (node->lon -lon);
+  }
+}
+void free_everynode(struct node* root){
+if(root==NULL){
+  return;
+}
+else{
+  free_everynode(root->right);
+  free_everynode(root->left);
+  free(root);
+  } 
 }
 
-struct node* mk_kdtree(struct record* rs, int depth, int n) {
-    if (n==0) return NULL;
-    
-    struct node* curr = malloc(sizeof(struct node));
-    int axis = depth % 2;
-
-    curr->axis = axis;
-    int new_n1;
-    int new_n2;
-
-    if (n==1){
-    curr->lat= rs->lat;
-    curr->lon= rs->lon;
-    curr->rec = rs;
-    curr->left = NULL;
-    curr->right = NULL;
-    return curr;
-
-    }
-    if (depth % 2 == 0){
-        qsort(rs,(size_t)n, (size_t)sizeof(struct record), compare_lon);
-    }
-    else{
-        qsort(rs,(size_t)n, (size_t)sizeof(struct record), compare_lat);
-    }
-
+void free_kdtree(struct k2Tree* tree) {
+  if (tree == NULL) {
+    return;
+  }
+  free_everynode(tree->root);
+  free(tree);
 }
 
-void free_kdtree(struct node* data) {
-  if (data != NULL){
-    free(data);
+void recLookup_kdtree( struct nearest_node *nearest, double lon, double lat, struct node *node)
+{
+  double diff;
+  double tmpdst;
+  double r;
+  if(node == NULL){
+    return;
+  }
+  else
+  { 
+    tmpdst = dst(node, lon, lat);
+    if( tmpdst < nearest->dst)
+     { 
+       nearest->node = node;
+       nearest->dst = tmpdst;
+     }
+    r = nearest->dst;
+    diff = getdiff(node, lon, lat);
+    if(((diff>=0) ||r > fabs(diff)) && ((node->left) != NULL))
+      {
+        recLookup_kdtree(nearest, lon, lat, node->left);
+      }
+    if(((diff<=0) ||r > fabs(diff))&& ((node->right) != NULL) ) 
+      {
+        recLookup_kdtree(nearest, lon, lat, node->right);
+      }
+    return;
   }
 }
 
-const struct record* lookup_kdtree(struct naive_data *data, double lon, double lat) {
-
+const struct record* lookup_kdtree(struct k2Tree *tree, double lon, double lat) {
+  struct nearest_node* nearest = malloc(sizeof(struct nearest_node));
+  double qlon = lon;
+  double qlat = lat;
+  nearest->node = tree->root;
+  nearest->dst = dst(nearest->node, qlon, qlat);
+  recLookup_kdtree(nearest, qlon, qlat, tree->root);
+  struct record* nearestrecord = nearest->node->rs;
+  free(nearest);
+  return nearestrecord;
 }
 
 int main(int argc, char** argv) {
