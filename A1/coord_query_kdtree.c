@@ -106,7 +106,7 @@ double dst(struct node* node, double lon, double lat){
  return sqrt(pow(lat- (node->lat),2) + pow(lon- (node->lon),2));
 }
 
-double getdiff(struct node* node, double lon, double lat)
+double compD(struct node* node, double lon, double lat)
 {
   if(node->ax==1)
   {
@@ -152,7 +152,7 @@ void recLookup_kdtree( struct nearest_node *nearest, double lon, double lat, str
        nearest->dst = tmpdst;
      }
     r = nearest->dst;
-    diff = getdiff(node, lon, lat);
+    diff = compD(node, lon, lat);
     if(((diff>=0) ||r > fabs(diff)) && ((node->left) != NULL))
       {
         recLookup_kdtree(nearest, lon, lat, node->left);
