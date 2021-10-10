@@ -116,13 +116,13 @@ double compD(struct node* node, double lon, double lat)
     return (node->lon -lon);
   }
 }
-void free_everynode(struct node* root){
+void free_all(struct node* root){
 if(root==NULL){
   return;
 }
 else{
-  free_everynode(root->right);
-  free_everynode(root->left);
+  free_all(root->right);
+  free_all(root->left);
   free(root);
   } 
 }
@@ -131,7 +131,7 @@ void free_kdtree(struct k2Tree* tree) {
   if (tree == NULL) {
     return;
   }
-  free_everynode(tree->root);
+  free_all(tree->root);
   free(tree);
 }
 
