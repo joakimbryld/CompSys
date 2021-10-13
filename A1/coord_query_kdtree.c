@@ -24,7 +24,7 @@ struct k2Tree
   struct node* root;
 };
 
-struct nearest_node{
+struct near_node{
     struct node *node;
     double dst;
 };
@@ -116,13 +116,13 @@ double compD(struct node* node, double lon, double lat)
     return (node->lon -lon);
   }
 }
-void free_all(struct node* root){
+void free_allNodes(struct node* root){
 if(root==NULL){
   return;
 }
 else{
-  free_all(root->right);
-  free_all(root->left);
+  free_allNodes(root->right);
+  free_allNodes(root->left);
   free(root);
   } 
 }
@@ -131,11 +131,11 @@ void free_kdtree(struct k2Tree* tree) {
   if (tree == NULL) {
     return;
   }
-  free_all(tree->root);
+  free_allNodes(tree->root);
   free(tree);
 }
 
-void recLookup_kdtree( struct nearest_node *nearest, double lon, double lat, struct node *node)
+void recLookup_kdtree( struct near_node *near, double lon, double lat, struct node *node)
 {
   double diff;
   double tmpdst;
@@ -146,35 +146,35 @@ void recLookup_kdtree( struct nearest_node *nearest, double lon, double lat, str
   else
   { 
     tmpdst = dst(node, lon, lat);
-    if( tmpdst < nearest->dst)
+    if( tmpdst < near->dst)
      { 
-       nearest->node = node;
-       nearest->dst = tmpdst;
+       near->node = node;
+       near->dst = tmpdst;
      }
-    r = nearest->dst;
+    r = near->dst;
     diff = compD(node, lon, lat);
     if(((diff>=0) ||r > fabs(diff)) && ((node->left) != NULL))
       {
-        recLookup_kdtree(nearest, lon, lat, node->left);
+        recLookup_kdtree(near, lon, lat, node->left);
       }
     if(((diff<=0) ||r > fabs(diff))&& ((node->right) != NULL) ) 
       {
-        recLookup_kdtree(nearest, lon, lat, node->right);
+        recLookup_kdtree(near, lon, lat, node->right);
       }
     return;
   }
 }
 
 const struct record* lookup_kdtree(struct k2Tree *tree, double lon, double lat) {
-  struct nearest_node* nearest = malloc(sizeof(struct nearest_node));
+  struct near_node* near = malloc(sizeof(struct near_node));
   double qlon = lon;
   double qlat = lat;
-  nearest->node = tree->root;
-  nearest->dst = dst(nearest->node, qlon, qlat);
-  recLookup_kdtree(nearest, qlon, qlat, tree->root);
-  struct record* nearestrecord = nearest->node->rs;
-  free(nearest);
-  return nearestrecord;
+  near->node = tree->root;
+  near->dst = dst(near->node, qlon, qlat);
+  recLookup_kdtree(near, qlon, qlat, tree->root);
+  struct record* nearrecord = near->node->rs;
+  free(near);
+  return nearrecord;
 }
 
 int main(int argc, char** argv) {
