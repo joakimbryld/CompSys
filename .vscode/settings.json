@@ -2,6 +2,11 @@
     "makefile.extensionOutputFolder": "./.vscode",
     "files.associations": {
         "coord_query.h": "c",
-        "__node_handle": "c"
+        "__node_handle": "c",
+        "__bit_reference": "c",
+        "__split_buffer": "c",
+        "string": "c",
+        "vector": "c",
+        "queue": "c"
     }
 }

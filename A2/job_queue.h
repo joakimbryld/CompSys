@@ -4,7 +4,9 @@
 #include <pthread.h>
 
 struct job_queue {
-  int dummy;
+  void** array;
+  int isDestroyed; // 1 if destroyed, 0 if not.
+  int top;
 };
 
 // Initialise a job queue with the given capacity.  The queue starts out
