@@ -7,6 +7,9 @@
         "__split_buffer": "c",
         "string": "c",
         "vector": "c",
-        "queue": "c"
+        "queue": "c",
+        "array": "c",
+        "iterator": "c",
+        "string_view": "c"
     }
 }
