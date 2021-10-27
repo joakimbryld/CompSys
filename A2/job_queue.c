@@ -4,75 +4,92 @@
 
 #include "job_queue.h"
 
-int job_queue_init(struct job_queue *job_queue, int capacity) {
-  // Spørg TA om man skal tjekke om der er plads til det nedenstående.
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
-  malloc(sizeof(void*[capacity]));
-  void* arr[capacity];
+int job_queue_init(struct job_queue *job_queue, int capacity) {
+
+  void** arr = calloc(capacity, sizeof(void*));
   job_queue->array = arr;
   job_queue->isDestroyed = 0;
   job_queue->top = -1;
   job_queue->capacity = capacity;
   job_queue->NumbElements = 0;
-  
-
+  return 0;
 }
+
 
 int job_queue_destroy(struct job_queue *job_queue) {
-  
-  
-}
-
-// int checkIfArrayFull(struct job_queue *arr, int size) {
-//   int counter = 0;
-//   for (int i; i<size; i++){
-//     if (arr->array[i] != NULL) {
-//       counter++;
-//     }
-//   } 
-//   if (counter == size) {
-//     return 0;
-//   }
-//   else if (counter != size) {
-//     return -1;
-//   }
-// }
-
-int job_queue_push(struct job_queue *job_queue, void *data) {
-  if (&job_queue->isDestroyed == 1) {
-    printf("The job queue does not exist");
-    return -1;
+  pthread_mutex_lock(&mutex);
+  while (job_queue->NumbElements != 0) {
+    pthread_cond_wait(&cond, &mutex);
   }
 
-  if (job_queue->capacity < job_queue->NumbElements) { // not filled
+  if (job_queue->NumbElements == 0) { // skal gøre så den venter.
+    job_queue->isDestroyed = 1;
+    pthread_mutex_lock(&mutex); 
+    return 0; 
+  }
+  return -1;
+}
+
+
+
+
+int job_queue_push(struct job_queue *job_queue, void *data) {
+  printf("Før lås i push \n");
+  pthread_mutex_lock(&mutex);
+  printf("efter lås i push \n");
+  if (job_queue->isDestroyed == 1) {
+    printf("The job queue does not exist");
+    pthread_mutex_unlock(&mutex);
+    return -1;
+
+  }
+  while (job_queue->capacity == job_queue->NumbElements) { // filled
+    printf("While loop \n ");
+    pthread_cond_wait(&cond, &mutex);
+    
+  }
+
+  
+
+  if (job_queue->capacity > job_queue->NumbElements) { // not filled
+
     job_queue->top = job_queue->top + 1;
     job_queue->array[job_queue->top] = data;
     job_queue->NumbElements += 1;
+    pthread_cond_signal(&cond);
+    pthread_mutex_unlock(&mutex);
+    return 0;
+     
   } 
-
-  else { // filled - needs to wait
-  
-  // use wait method.
-  // mutex???
-
-  }
-
+  printf("Helt nede \n");
+  return 0; // Ikke sikkert at det er rigtigt, bare en return værdi.
 }
 
+
+
+
 int job_queue_pop(struct job_queue *job_queue, void **data) {
-  if (&job_queue->isDestroyed == 1) {
+  printf("Før lås i pop \n");
+  pthread_mutex_lock(&mutex);
+  printf("Efter lås i pop \n");
+  if (job_queue->isDestroyed == 1) {
     printf("The job queue does not exist");
+    pthread_mutex_unlock(&mutex);
     return -1;
   }
 
-  if (job_queue->NumbElements == 0) { // empty
-    // wait for a push from another thread
+  while (job_queue->NumbElements == 0) { // empty
+    printf("POP WHILE nede \n");
+    pthread_cond_wait(&cond, &mutex);
   }
 
-  else {
-    malloc(sizeof(data));
-    data = job_queue->array[job_queue->top];
-    job_queue->top = job_queue->top - 1;
+  data = malloc(sizeof(job_queue->array[job_queue->top]));
+  job_queue->top = job_queue->top - 1;
+  return 0;
+  pthread_cond_signal(&cond); // skal give signal om at den har poppet et element.
+  pthread_mutex_unlock(&mutex);
 
-  } 
-}
+} 

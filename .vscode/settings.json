@@ -10,6 +10,7 @@
         "queue": "c",
         "array": "c",
         "iterator": "c",
-        "string_view": "c"
+        "string_view": "c",
+        "__mutex_base": "c"
     }
 }
