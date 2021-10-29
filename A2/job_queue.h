@@ -4,12 +4,12 @@
 #include <pthread.h>
 
 struct job_queue {
-  void** array;
-  int isDestroyed; // 1 if destroyed, 0 if not.
-  int top;
-  int isFull; // 1 then full, 0 not full
-  int capacity;
-  int NumbElements;
+  void** elements;
+  int max_Size;
+  int size;
+  int head;
+  int tail;
+
 };
 
 // Initialise a job queue with the given capacity.  The queue starts out

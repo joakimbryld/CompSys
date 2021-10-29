@@ -11,6 +11,13 @@
         "array": "c",
         "iterator": "c",
         "string_view": "c",
-        "__mutex_base": "c"
+        "__mutex_base": "c",
+        "__hash_table": "c",
+        "bitset": "c",
+        "deque": "c",
+        "initializer_list": "c",
+        "random": "c",
+        "unordered_map": "c",
+        "utility": "c"
     }
 }

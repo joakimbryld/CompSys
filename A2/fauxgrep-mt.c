@@ -50,14 +50,15 @@ int main(int argc, char * const *argv) {
     needle = argv[1];
     paths = &argv[2];
   }
-
-  assert(0); // Initialise the job queue and some worker threads here.
+  struct job_queue *job_queue = jq();
+  int queue = job_queue_init(jq, num_threads);  // Initialise the job queue and some worker threads here.
 
   // FTS_LOGICAL = follow symbolic links
   // FTS_NOCHDIR = do not change the working directory of the process
   //
   // (These are not particularly important distinctions for our simple
   // uses.)
+  
   int fts_options = FTS_LOGICAL | FTS_NOCHDIR;
 
   FTS *ftsp;
