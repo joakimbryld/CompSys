@@ -4,12 +4,13 @@
 #include <pthread.h>
 #include "job_queue.h"
 
-
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t empty = PTHREAD_COND_INITIALIZER; 
 pthread_cond_t fill  = PTHREAD_COND_INITIALIZER;
+int qdestoryed = 0;
 
 int job_queue_init(struct job_queue *jobqueue, int capacity) {
+  //jobqueue = malloc(sizeof(job_queue));
   jobqueue->max_Size = capacity;
   jobqueue->size = 0;
   jobqueue->head = 0;
@@ -28,12 +29,10 @@ int job_queue_destroy(struct job_queue *jobqueue) {
   while(jobqueue->size != 0){ 
     pthread_cond_wait(&(empty),&mutex);
     }
-
   pthread_cond_broadcast(&(fill));
   pthread_mutex_unlock(&mutex);
-  pthread_cond_destroy(&(fill));
   free(jobqueue->elements);
-  free(jobqueue);
+  qdestoryed=1;
   return 0;
 }
 
@@ -49,7 +48,7 @@ int job_queue_push(struct job_queue *jobqueue, void *data) {
       jobqueue->tail++;
     jobqueue->elements[jobqueue->tail] = data;
     jobqueue->size++;
-
+    
     pthread_cond_broadcast(&(fill));
     pthread_mutex_unlock(&mutex);
     return 1;
@@ -59,26 +58,24 @@ int job_queue_push(struct job_queue *jobqueue, void *data) {
 }
 
 int job_queue_pop(struct job_queue *jobqueue, void **data) {
+  int res = 0;
   pthread_mutex_lock(&mutex);
-  while(jobqueue->size == 0)
+  while((jobqueue->size == 0)&&(!qdestoryed))
     pthread_cond_wait(&(fill), &mutex);
   
-  if(jobqueue!=NULL){
+  if(!qdestoryed){
     *data =(char*) jobqueue->elements[jobqueue->head];
-    //printf("%s popped from queue at head %d\n",  (char*)(jobqueue->elements[jobqueue->head]), jobqueue->head);
     jobqueue->size--;
     if(jobqueue->head == jobqueue->max_Size)
       jobqueue->head = 0;
     else
       jobqueue->head++;
     pthread_cond_signal(&(empty));
-    pthread_mutex_unlock(&mutex);
-    return 1;
   }
   else{
+    res = -1;
     data = NULL;
-    return -1;
   }
+  pthread_mutex_unlock(&mutex);
+  return res;
 }
-
-
