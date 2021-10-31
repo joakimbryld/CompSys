@@ -4,11 +4,11 @@
 #include <pthread.h>
 
 struct job_queue {
-  void** elements;
-  int max_Size;
-  int size;
-  int head;
-  int tail;
+  void** arr;
+  int cap;
+  int NumbOfElements;
+  int top;
+  int end;
 
 };
 

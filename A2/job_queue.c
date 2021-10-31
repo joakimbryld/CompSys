@@ -4,19 +4,23 @@
 #include <pthread.h>
 #include "job_queue.h"
 
+
+
+pthread_cond_t go  = PTHREAD_COND_INITIALIZER;
+
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t empty = PTHREAD_COND_INITIALIZER; 
-pthread_cond_t fill  = PTHREAD_COND_INITIALIZER;
-int qdestoryed = 0;
+
+int IsQdestroyed = 0;
+
+pthread_cond_t clear = PTHREAD_COND_INITIALIZER; 
 
 int job_queue_init(struct job_queue *jobqueue, int capacity) {
-  //jobqueue = malloc(sizeof(job_queue));
-  jobqueue->max_Size = capacity;
-  jobqueue->size = 0;
-  jobqueue->head = 0;
-  jobqueue->tail = -1;
+  jobqueue->cap = capacity;
+  jobqueue->NumbOfElements = 0;
+  jobqueue->top = 0;
+  jobqueue->end = -1;
   
-  if( (jobqueue->elements = malloc(capacity * sizeof(void*))) != NULL) {
+  if( (jobqueue->arr = malloc(capacity * sizeof(void*))) != NULL) {
     return 0;
   }
   else {
@@ -26,30 +30,30 @@ int job_queue_init(struct job_queue *jobqueue, int capacity) {
 
 int job_queue_destroy(struct job_queue *jobqueue) {
   pthread_mutex_lock(&mutex);
-  while(jobqueue->size != 0){ 
-    pthread_cond_wait(&(empty),&mutex);
+  while(jobqueue->NumbOfElements != 0){ 
+    pthread_cond_wait(&(clear),&mutex);
     }
-  pthread_cond_broadcast(&(fill));
+  pthread_cond_broadcast(&(go));
   pthread_mutex_unlock(&mutex);
-  free(jobqueue->elements);
-  qdestoryed=1;
+  free(jobqueue->arr);
+  IsQdestroyed=1;
   return 0;
 }
 
 int job_queue_push(struct job_queue *jobqueue, void *data) {
   pthread_mutex_lock(&mutex);
-  while(jobqueue->size == jobqueue->max_Size) { 
-    pthread_cond_wait(&(empty), &mutex);
+  while(jobqueue->NumbOfElements == jobqueue->cap) { 
+    pthread_cond_wait(&(clear), &mutex);
   }
   if(jobqueue!=NULL){
-    if(jobqueue->tail == jobqueue->max_Size)
-      jobqueue->tail = 0;
+    if(jobqueue->end == jobqueue->cap)
+      jobqueue->end = 0;
     else 
-      jobqueue->tail++;
-    jobqueue->elements[jobqueue->tail] = data;
-    jobqueue->size++;
+      jobqueue->end = jobqueue->end +1;
+    jobqueue->arr[jobqueue->end] = data;
+    jobqueue->NumbOfElements = jobqueue->NumbOfElements + 1;
     
-    pthread_cond_broadcast(&(fill));
+    pthread_cond_broadcast(&(go));
     pthread_mutex_unlock(&mutex);
     return 1;
   }
@@ -58,24 +62,26 @@ int job_queue_push(struct job_queue *jobqueue, void *data) {
 }
 
 int job_queue_pop(struct job_queue *jobqueue, void **data) {
-  int res = 0;
+  int c = 0;
   pthread_mutex_lock(&mutex);
-  while((jobqueue->size == 0)&&(!qdestoryed))
-    pthread_cond_wait(&(fill), &mutex);
+
+  while((jobqueue->NumbOfElements == 0)&&(!IsQdestroyed))
+    pthread_cond_wait(&(go), &mutex);
   
-  if(!qdestoryed){
-    *data =(char*) jobqueue->elements[jobqueue->head];
-    jobqueue->size--;
-    if(jobqueue->head == jobqueue->max_Size)
-      jobqueue->head = 0;
+  if(!IsQdestroyed){
+    *data =(char*) jobqueue->arr[jobqueue->top];
+
+    jobqueue->NumbOfElements = jobqueue->NumbOfElements -1 ;
+    if(jobqueue->top == jobqueue->cap)
+      jobqueue->top = 0;
     else
-      jobqueue->head++;
-    pthread_cond_signal(&(empty));
+      jobqueue->top = jobqueue->top + 1;
+    pthread_cond_signal(&(clear));
   }
   else{
-    res = -1;
+    c = -1;
     data = NULL;
   }
   pthread_mutex_unlock(&mutex);
-  return res;
+  return c;
 }
