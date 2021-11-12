@@ -202,6 +202,9 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
 
     csc_file_t* casc_file_data = (csc_file_t*)malloc(sizeof(csc_file_t));
 
+
+    
+
     /*
     TODO Parse the cascade file and store the data in an appropriate data structure    
     
