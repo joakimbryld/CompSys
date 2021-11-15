@@ -201,11 +201,15 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
     }
 
     csc_file_t* casc_file_data = (csc_file_t*)malloc(sizeof(csc_file_t));
+    
+    
+    char myarray[4] = {header[17],header[18],header[19],header[20],
+                header[21],header[22],header[23], header[24]};
 
+    int i = atoi(myarray);
+    int size = ntohs(i);
 
-    // skal man lave sin egen datastruktur (csc_file_t) som indeholder de forskellige ting.
-
-    csc_file_data->blockcount = casc_file->blockcount;
+    csc_file_data->size; 
     
 
     /*
