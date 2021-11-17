@@ -18,6 +18,26 @@
         "initializer_list": "c",
         "random": "c",
         "unordered_map": "c",
-        "utility": "c"
+        "utility": "c",
+        "__locale": "c",
+        "__threading_support": "c",
+        "memory": "c",
+        "optional": "c",
+        "system_error": "c",
+        "thread": "c",
+        "type_traits": "c",
+        "__functional_base": "c",
+        "__functional_base_03": "c",
+        "__tuple": "c",
+        "algorithm": "c",
+        "chrono": "c",
+        "compare": "c",
+        "cstddef": "c",
+        "functional": "c",
+        "limits": "c",
+        "ratio": "c",
+        "tuple": "c",
+        "iosfwd": "c",
+        "__string": "c"
     }
 }

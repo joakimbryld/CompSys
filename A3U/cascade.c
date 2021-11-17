@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <math.h>
 
 #ifdef __APPLE__
 #include "./endian.h"
@@ -211,6 +212,7 @@ uint8_t* hex_to_bytes(const char* string) {
     return data;
 }
 
+
 /*
  * Parses a cascade file, given the sourcepath input and destination, which may or may not exist.
  * Returns a pointer to a datastructure describing the file, or NULL if the file could not be parsed
@@ -241,10 +243,45 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
         return NULL;
     }
 
+    // Hvad går opgaven ud på i sin helhed. 
+    // Hvordan kan man teste om tingene virker. 
+
     csc_file_t* casc_file_data = (csc_file_t*)malloc(sizeof(csc_file_t));
 
+    // targetsize:
     casc_file_data->targetsize = be64toh(*((unsigned long long*)&header[16]));
+
+    //blocksize:
     casc_file_data->blocksize = be64toh(*((unsigned long long*)&header[24]));
+
+    double size = casc_file_data->targetsize;
+    double blocksize = casc_file_data->blocksize;
+
+
+    //blockcount:
+    casc_file_data->blockcount = floor((size + blocksize - 1)/blocksize);
+
+    // blocks - pointer to array of all blocks.
+    csc_block_t* blockArry;
+    for (int i = 0; i<casc_file_data->blockcount; i++) {
+        blockArry[i].index = 0;
+        blockArry[i].offset = i*casc_file_data->blocksize + 64;
+        blockArry[i].length = casc_file_data->blocksize;
+        blockArry[i].completed;     // den her fatter vi ikke
+        blockArry[i].hash;          // skal findes ved brug af source filen?
+    }
+
+
+    // trailsize:
+    casc_file_data->trailblocksize = casc_file_data->targetsize % casc_file_data->blocksize;
+
+    // hash:
+    for (int i = 0; i<32; i++ ) {
+        casc_file_data->targethash.x[i] = header[i+32];
+    }
+
+
+
 
     
     /*
