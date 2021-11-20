@@ -325,6 +325,8 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
         sha256_update(&shactx, buffer, size);
         sha256_final(&shactx, &shabuffer);
         
+        
+
         /*
         TODO Compare the hashes taken from the Cascade file with those of the local data 
         file and keep a record of any missing blocks

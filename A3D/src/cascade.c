@@ -40,6 +40,26 @@ void free_resources()
 }
 
 /*
+ * Gets a sha256 hash of specified data, sourcedata. The hash itself is 
+ * placed into the given variable 'hash'. Any size can be created, but a
+ * a normal size for the hash would be given by the global variable 
+ * 'SHA256_HASH_SIZE', that has been defined in sha256.h
+ */
+void get_data_sha(const char* sourcedata, char* hash, uint32_t data_size, int hash_size)
+{    
+    SHA256_CTX shactx;
+    unsigned char shabuffer[hash_size];
+    sha256_init(&shactx);
+    sha256_update(&shactx, sourcedata, data_size);
+    sha256_final(&shactx, &shabuffer);
+    
+    for (int i=0; i<hash_size; i++)
+    {
+        hash[i] = shabuffer[i];
+    }
+}
+
+/*
  * Gets a sha256 hash of a specified file, sourcefile. The hash itself is 
  * placed into the given variable 'hash'. Any size can be created, but a
  * a normal size for the hash would be given by the global variable 
@@ -67,25 +87,7 @@ void get_file_sha(const char* sourcefile, char* hash, int size)
     get_data_sha(buffer, hash, casc_file_size, size);
 }
 
-/*
- * Gets a sha256 hash of specified data, sourcedata. The hash itself is 
- * placed into the given variable 'hash'. Any size can be created, but a
- * a normal size for the hash would be given by the global variable 
- * 'SHA256_HASH_SIZE', that has been defined in sha256.h
- */
-void get_data_sha(const char* sourcedata, char* hash, uint32_t data_size, int hash_size)
-{    
-    SHA256_CTX shactx;
-    unsigned char shabuffer[hash_size];
-    sha256_init(&shactx);
-    sha256_update(&shactx, sourcedata, data_size);
-    sha256_final(&shactx, &shabuffer);
-    
-    for (int i=0; i<hash_size; i++)
-    {
-        hash[i] = shabuffer[i];
-    }
-}
+
 
 /*
  * Perform all client based interactions in the P2P network for a given cascade file.
@@ -112,13 +114,17 @@ void download_only_peer(char *cascade_file)
     
     int uncomp_count = 0; 
     queue = malloc(casc_file->blockcount * sizeof(csc_block_t*));
-    
-    
-    /*
-    Mangler
-    */
 
     *queue = casc_file -> blocks;
+
+    for(int i=0;i<casc_file->blockcount;i++)
+    {   
+        if(casc_file->blocks[i].completed !=1)
+        {
+           queue[i] = &casc_file->blocks[i];
+           uncomp_count++;
+        }
+    }
 
     /*
     TODO Create a list of missing blocks
@@ -263,10 +269,6 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
     casc_file_data->targetsize = be64toh(*((unsigned long long*)&header[16]));
     casc_file_data->blocksize = be64toh(*((unsigned long long*)&header[24]));
 
-    /* ##### find trail block size*/
-
-
-
     for(unsigned long long i = 0; i < 32; i++){
         casc_file_data->targethash.x[i] = header[31+i];
     }
@@ -280,6 +282,8 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
     uint8_t block_buffer[casc_file_data->blockcount];
     uint8_t sha_buffer[casc_file_data->blockcount];
 
+    /* trail block size*/
+    casc_file_data->trailblocksize = casc_file_data->targetsize % casc_file_data->blocksize;
 
     /* getting the blocks */
     for(unsigned long long i = 0; i < casc_file_data->blockcount; i++){
@@ -302,7 +306,7 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
 
     /* check om antal hashes passer med blocks?/*
     /* point to first block in array, korrekt?*/
-    casc_file_data->blocks=casc_file_block[0];
+    casc_file_data->blocks=casc_file_block;
 
     /*
     To do Parse the cascade file and store the data in an appropriate data structure    
@@ -352,8 +356,11 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
         
         /*void *memcpy(void *dest, const void * src, size_t n)??*/
         if (casc_file_data->blocks[i].hash.x != shabuffer){
-            /*missing_blocks[missing_block_no].hash = shabuffer;*/
+            casc_file_data->blocks[i].completed = 0;
             missing_block_no +=1;
+        }
+        else {
+            casc_file_data->blocks[i].completed = 1;
         }
         
         /*
@@ -481,8 +488,9 @@ int get_peers_list(csc_peer_t** peers, unsigned char* hash)
     struct RequestBody request_body;
     request_body.ip = sa.sin_addr;
     request_body.port = 8888;
-    request_body.hash = ;  /*Hvordan får vi fat i det korrekte hash?*/ 
-    /*request_body.hash = shasum - A 256 source.cascade*/
+    for (int i = 0; i<SHA256_HASH_SIZE; i++) {
+        request_body.hash[i] = hash[i];
+    }
 
     struct FullRequest { 
         struct RequestHeader request_header;
@@ -537,29 +545,21 @@ int get_peers_list(csc_peer_t** peers, unsigned char* hash)
 
     int peercount = msglen/12; /*da trackeren returnerer en liste med peers må peercount være msglen/12 12 byte per peer*/
 
-    for(unsigned long long i = 0; i < peercount; i++)
+    for(int i = 0; i < peercount; i++)
     {
-        struct csc_peer peer;
-
-        /* fortolkning af bytes?*/
 
         /* læser reply body ind i body_reply*/
         rio_readnb(&rio, body_reply, 4); /*peer ip*/
-        peer.ip = htole16(body_reply);
-
-        memcpy(body_reply, peer.ip, 4); 
+        memcpy(body_reply, &peers[i]->ip, 4); 
 
         rio_readnb(&rio, body_reply, 2); /*peer port*/
-        memcpy(body_reply, peer.port, 2); 
+        memcpy(body_reply,  &peers[i]->port, 2); 
 
         rio_readnb(&rio, body_reply, 4); /*last seen timestamp*/
-        peer.lastseen = htobe16(body_reply);
-        memcpy(body_reply, peer.lastseen, );
-
+        peers[i]->lastseen = (uint32_t) body_reply;
+        
         rio_readnb(&rio, body_reply, 1); /*goodpeer*/
-        memcpy(body_reply, peer.good, 1);
-
-        /*reserved kan ikke lægges i structen*/
+        peers[i]->good = (uint8_t) body_reply;
         
     }
 
