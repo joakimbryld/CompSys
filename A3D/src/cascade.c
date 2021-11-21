@@ -285,24 +285,30 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
     /* trail block size*/
     casc_file_data->trailblocksize = casc_file_data->targetsize % casc_file_data->blocksize;
 
+
     /* getting the blocks */
-    for(unsigned long long i = 0; i < casc_file_data->blockcount; i++){
-        uint8_t block_buffer[1];
+    for(uint64_t i = 0; i < casc_file_data->blockcount; i++){
+        char block_buffer[casc_file_data->blocksize];
         char shabuffer[SHA256_HASH_SIZE];
 
+        printf("Everything is fine\n");
         fread(block_buffer, casc_file_data->blocksize, 1, fp);
-        get_data_sha(block_buffer, shabuffer, casc_file_data->targetsize, SHA256_HASH_SIZE);
 
-        /* vi skal tage højde for sidste blok trailsizeblock*/
-        casc_file_block[i]->index = i;
-        casc_file_block[i]->offset = i*casc_file_data->blocksize;
-        casc_file_block[i]->length = casc_file_data->blocksize; /*tror det kan gøres her end-of-file condition*/
+        get_data_sha(block_buffer, shabuffer, casc_file_data->blocksize, SHA256_HASH_SIZE);
+        printf("Everything is fine\n");
+
+        casc_file_data->blocks[i].index = i;
+        printf("Everything is fine\n");
+        casc_file_data->blocks[i].offset = i*casc_file_data->blocksize;
+        casc_file_data->blocks[i].length = casc_file_data->blocksize; /*tror det kan gøres her end-of-file condition*/
         /*byte count bør være i orden*/
 
         for(unsigned long long j = 0; j < 32; j++){
-            casc_file_block[i]->hash.x[j] = shabuffer[j];
+            casc_file_data->blocks[i].hash.x[j] = shabuffer[j];
         }
     }
+
+
 
     /* check om antal hashes passer med blocks?/*
     /* point to first block in array, korrekt?*/
