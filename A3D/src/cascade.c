@@ -270,9 +270,8 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
     casc_file_data->targetsize = be64toh(*((unsigned long long*)&header[16]));
     casc_file_data->blocksize = be64toh(*((unsigned long long*)&header[24]));
 
-    for(unsigned long long i = 0; i < 32; i++){
-        casc_file_data->targethash.x[i] = header[31+i];
-    }
+    memcpy(casc_file_data->targethash.x, header+32, 32); // skal måske være strncpy
+
 
     /* counting blocks*/
     casc_file_data->blockcount=floor((casc_file_data->blocksize+casc_file_data->targetsize-1)/casc_file_data->blocksize);
@@ -478,7 +477,7 @@ void get_block(csc_block_t* block, csc_peer_t peer, unsigned char* hash, char* o
 int get_peers_list(csc_peer_t** peers, unsigned char* hash)
 {
     rio_t rio;    
-    char rio_buf[MESSAGE_SIZE]; /*MESSAGE_SIZE i stedet for maxline*/
+    char rio_buf[MAX_LINE]; /*MESSAGE_SIZE i stedet for maxline*/
     char body_reply[BODY_SIZE];
 
     int tracker_socket;
@@ -499,9 +498,14 @@ int get_peers_list(csc_peer_t** peers, unsigned char* hash)
     struct RequestBody request_body;
     request_body.ip = sa.sin_addr;
     request_body.port = 8888;
-    for (int i = 0; i<SHA256_HASH_SIZE; i++) {
-        request_body.hash[i] = hash[i];
-    }
+    // for (int i = 0; i<SHA256_HASH_SIZE; i++) {
+    //     request_body.hash[i] = hash[i];
+    //     // printf("%s \n", hash[i]);
+
+    // }
+    // printf("%s \n",request_body.hash);
+    strncpy(request_body.hash,"713a203b7e89753a8893f7d452e8bcc19de65024595f50ddf7899f1da9d95fff", SHA256_HASH_SIZE);
+
 
     struct FullRequest { 
         struct RequestHeader request_header;
@@ -517,11 +521,14 @@ int get_peers_list(csc_peer_t** peers, unsigned char* hash)
 
     memcpy(rio_buf, &full_request, MESSAGE_SIZE);
     rio_writen(tracker_socket, rio_buf, MESSAGE_SIZE);
-    rio_readnb(&rio, rio_buf, HEADER_SIZE); /*læser header reply ind i rio_buf*/
+    rio_readnb(&rio, rio_buf, MAX_LINE); /*læser header reply ind i rio_buf*/
     
     /* læser reply header ind i reply_header*/
-    char reply_header[REPLY_HEADER_SIZE];
-    memcpy(reply_header, rio_buf, REPLY_HEADER_SIZE);  
+    char reply_header[MAX_LINE];
+    memcpy(reply_header, rio_buf, MAX_LINE);
+
+
+
 
     uint32_t msglen = ntohl(*(uint32_t*)&reply_header[1]);
     if (msglen == 0)
