@@ -270,16 +270,13 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
     casc_file_data->targetsize = be64toh(*((unsigned long long*)&header[16]));
     casc_file_data->blocksize = be64toh(*((unsigned long long*)&header[24]));
 
-    memcpy(casc_file_data->targethash.x, header+32, 32); // skal måske være strncpy
+    memcpy(casc_file_data->targethash.x, header+32, 32); 
 
 
-    /* counting blocks*/
     casc_file_data->blockcount=floor((casc_file_data->blocksize+casc_file_data->targetsize-1)/casc_file_data->blocksize);
     
-    /* creating array of block structs*/
-    // csc_block_t* casc_file_block [casc_file_data->blockcount]; 
+ 
 
-    /* trail block size*/
     casc_file_data->trailblocksize = casc_file_data->targetsize % casc_file_data->blocksize;
 
     /* allocating memory for blocks*/
@@ -318,12 +315,6 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
         casc_file_data->blocks[casc_file_data->blocksize-1].hash.x[i] = shabuffer[i];
     }
 
-
-
-
-    /* check om antal hashes passer med blocks?/*
-    /* point to first block in array, korrekt?*/
-    // casc_file_data->blocks=casc_file_block;
 
     /*
     To do Parse the cascade file and store the data in an appropriate data structure    
@@ -368,7 +359,7 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
         sha256_update(&shactx, buffer, size);
         sha256_final(&shactx, &shabuffer);
 
-        /*void *memcpy(void *dest, const void * src, size_t n)??*/
+
         if (casc_file_data->blocks[i].hash.x == shabuffer) {
             casc_file_data->blocks[i].completed <- 1;
         }
@@ -434,8 +425,8 @@ void get_block(csc_block_t* block, csc_peer_t peer, unsigned char* hash, char* o
     printf("Error: %d", response_header.error[0]);
 
     /* body*/
-    char msg_buf[response_header.length]; /*længde af body */
-    rio_readnb(&rio, msg_buf, response_header.length); /*block data ligger i msg_buf*/
+    char msg_buf[response_header.length]; 
+    rio_readnb(&rio, msg_buf, response_header.length);
     
     /*
     TODO Request a block from a peer DONE
@@ -457,15 +448,15 @@ void get_block(csc_block_t* block, csc_peer_t peer, unsigned char* hash, char* o
         return;
     }
 
-    /* skriv msg_buf (block_data) til output_file*/
-    fseek(fp, block->index, SEEK_SET); /*fp peger et sted hen i output file, vi ændrer den pointer til block index*/
+
+    fseek(fp, block->index, SEEK_SET); 
     fwrite(msg_buf, block->length, 1, fp);
 
     /*
     TODO Write the block into the data file DONE
     */
     
-    printf("Got block %d. Wrote from %d to %d\n", block->index, block->offset); /*, block->offset+write_count-1);*/
+    printf("Got block %d. Wrote from %d to %d\n", block->index, block->offset); 
     Close(peer_socket);
     fclose(fp);
 }
@@ -477,7 +468,7 @@ void get_block(csc_block_t* block, csc_peer_t peer, unsigned char* hash, char* o
 int get_peers_list(csc_peer_t** peers, unsigned char* hash)
 {
     rio_t rio;    
-    char rio_buf[MAX_LINE]; /*MESSAGE_SIZE i stedet for maxline*/
+    char rio_buf[MAX_LINE];
     char body_reply[BODY_SIZE];
 
     int tracker_socket;
@@ -498,14 +489,11 @@ int get_peers_list(csc_peer_t** peers, unsigned char* hash)
     struct RequestBody request_body;
     request_body.ip = sa.sin_addr;
     request_body.port = 8888;
-    // for (int i = 0; i<SHA256_HASH_SIZE; i++) {
-    //     request_body.hash[i] = hash[i];
-    //     // printf("%s \n", hash[i]);
+    for (int i = 0; i<SHA256_HASH_SIZE; i++) {
+        request_body.hash[i] = hash[i];
 
-    // }
-    // printf("%s \n",request_body.hash);
-    strncpy(request_body.hash,"713a203b7e89753a8893f7d452e8bcc19de65024595f50ddf7899f1da9d95fff", SHA256_HASH_SIZE);
-
+    }
+   
 
     struct FullRequest { 
         struct RequestHeader request_header;
@@ -521,9 +509,9 @@ int get_peers_list(csc_peer_t** peers, unsigned char* hash)
 
     memcpy(rio_buf, &full_request, MESSAGE_SIZE);
     rio_writen(tracker_socket, rio_buf, MESSAGE_SIZE);
-    rio_readnb(&rio, rio_buf, MAX_LINE); /*læser header reply ind i rio_buf*/
+    rio_readnb(&rio, rio_buf, MAX_LINE); 
     
-    /* læser reply header ind i reply_header*/
+
     char reply_header[MAX_LINE];
     memcpy(reply_header, rio_buf, MAX_LINE);
 
@@ -561,12 +549,12 @@ int get_peers_list(csc_peer_t** peers, unsigned char* hash)
         return NULL;
     }
 
-    int peercount = msglen/12; /*da trackeren returnerer en liste med peers må peercount være msglen/12 12 byte per peer*/
+    int peercount = msglen/12; 
 
     for(int i = 0; i < peercount; i++)
     {
 
-        /* læser reply body ind i body_reply*/
+
         rio_readnb(&rio, body_reply, 4); /*peer ip*/
         memcpy(body_reply, &peers[i]->ip, 4); 
 
