@@ -119,16 +119,13 @@ void download_only_peer(char *cascade_file)
 
     for(int i=0;i<casc_file->blockcount;i++)
     {   
-        printf("Her virker det ikke \n");
-
         if(casc_file->blocks[i].completed != 1)
         {
-            printf("Inde i IF \n");
            queue[i] = &casc_file->blocks[i];
            uncomp_count++;
         }
     }
-    printf("Her virker det ikke \n");
+
     /*
     TODO Create a list of missing blocks
     
@@ -159,7 +156,7 @@ void download_only_peer(char *cascade_file)
             printf("Found %d peer(s)\n", peercount);
         }
     }
-    
+
     csc_peer_t peer = (peers[0]);
     // Get a good peer if one is available
     for (int i=0; i<peercount; i++)
@@ -283,49 +280,43 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
     /* creating array of block structs*/
     // csc_block_t* casc_file_block [casc_file_data->blockcount]; 
 
-
     /* trail block size*/
     casc_file_data->trailblocksize = casc_file_data->targetsize % casc_file_data->blocksize;
 
+    /* allocating memory for blocks*/
+    casc_file_data->blocks = malloc(casc_file_data->blockcount*sizeof(csc_block_t));
 
     /* getting the blocks */
     for(int i = 0; i < (casc_file_data->blockcount-1); i++){
         char block_buffer[casc_file_data->blocksize];
         char shabuffer[SHA256_HASH_SIZE];
 
-
         fread(block_buffer, casc_file_data->blocksize, 1, fp);
 
         get_data_sha(block_buffer, shabuffer, casc_file_data->blocksize, SHA256_HASH_SIZE);
-
-
-        casc_file_data->blocks[i].index <- (uint64_t) i;
-
-        casc_file_data->blocks[i].offset <- i*casc_file_data->blocksize;
-        casc_file_data->blocks[i].length <- casc_file_data->blocksize; /*tror det kan gøres her end-of-file condition*/
-        /*byte count bør være i orden*/
-        casc_file_data->blocks[i].completed <- 0;
+        casc_file_data->blocks[i].index = (uint64_t) i;
+        casc_file_data->blocks[i].offset = i*casc_file_data->blocksize;
+        casc_file_data->blocks[i].length = casc_file_data->blocksize; 
+        casc_file_data->blocks[i].completed = 0;
 
         for(unsigned long long j = 0; j < 32; j++){
-            casc_file_data->blocks[i].hash.x[j] <- shabuffer[j];
-        }
-        
+            casc_file_data->blocks[i].hash.x[j] = shabuffer[j];
+        }        
     }
-
 
     char block_buffer[casc_file_data->trailblocksize];
     char shabuffer[SHA256_HASH_SIZE];
 
     fread(block_buffer, casc_file_data->trailblocksize, 1, fp);
 
-    casc_file_data->blocks[casc_file_data->blocksize-1].index <- casc_file_data->blockcount-1;
-    casc_file_data->blocks[casc_file_data->blocksize-1].offset <- (casc_file_data->blockcount-1)*casc_file_data->blocksize;
-    casc_file_data->blocks[casc_file_data->blocksize-1].length <- casc_file_data->trailblocksize;
-    casc_file_data->blocks[casc_file_data->blocksize-1].completed <- 0;
+    casc_file_data->blocks[casc_file_data->blocksize-1].index = casc_file_data->blockcount-1;
+    casc_file_data->blocks[casc_file_data->blocksize-1].offset = (casc_file_data->blockcount-1)*casc_file_data->blocksize;
+    casc_file_data->blocks[casc_file_data->blocksize-1].length = casc_file_data->trailblocksize;
+    casc_file_data->blocks[casc_file_data->blocksize-1].completed = 0;
 
     for(unsigned long long i = 0; i < 32; i++){
   
-        casc_file_data->blocks[casc_file_data->blocksize-1].hash.x[i] <- shabuffer[i];
+        casc_file_data->blocks[casc_file_data->blocksize-1].hash.x[i] = shabuffer[i];
     }
 
 
