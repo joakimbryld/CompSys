@@ -521,7 +521,7 @@ int get_peers_list(hashdata_t hash)
     }
     Close(tracker_socket);
     return peercount;
-}
+}   
 
 /*
  * The entry point for the code. Parses command line arguments and starts up the appropriate peer code.
