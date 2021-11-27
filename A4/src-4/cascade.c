@@ -523,6 +523,24 @@ int get_peers_list(hashdata_t hash)
     return peercount;
 }   
 
+void setup_client_server() {
+
+// find færdige cascade filer på klientens PC    
+
+// subscribe til tracker og få en liste af peers
+int tracker_socket = Open_clientfd(tracker_ip, tracker_port);
+
+
+// get_peers_list(hashdata), unsubscriber vi igen, hvis vi lukker vores socket connection til trackeren?
+
+
+// lyt efter connections og accepter kun dem fra good peers
+int open_listenfd(my_port); // skal vi gøre noget for at sikre, at den er non-blocking? 
+
+// lad være med at lukke forbindelsen ned, men gå videre til næste step i main og download filer fra peers
+
+} 
+
 /*
  * The entry point for the code. Parses command line arguments and starts up the appropriate peer code.
  */
@@ -583,6 +601,10 @@ int main(int argc, char **argv)
             exit(EXIT_FAILURE);
         }
     }
+
+    // sæt os op som server her
+
+    setup_client_server(); 
 
     for (int j=0; j<casc_count; j++)
     {
