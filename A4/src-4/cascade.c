@@ -523,31 +523,45 @@ int get_peers_list(hashdata_t hash)
     return peercount;
 }   
 
+// Ny A4 kode herfra
 void setup_client_server() {
+  
+    DIR *dp;
+    struct dirent *dirp;
 
+    int completed_casc_file;
+    hashdata_t hash_buf;
 
-// find færdige cascade filer på klientens PC    
-// initialiser liste med deres hashes
-// get_file_sha  
+    // find færdige cascade filer på klientens PC  
+    dp = Opendir("./tests")
 
-int completed_casc_file;
+    while ((dirp = readdir(dp)) != NULL)
+        point = dirp->d_name + strlen(dirp->d_name); 
 
-// subscribe til tracker (for hver cascade fil) og få en liste af peers
-for (int j=0; j<casc_count; j++)
-    {
-        completed_casc_file = completed_cascade_file();
-        if (completed_cascade_file = 1){
-        get_peers_list();
+        if((point = strrchr(filename,'.')) != NULL ) {
+
+            if(strcmp(point,".cascade") == 0) { // fil slutter på .cascade
+
+                // subscribe til tracker (for hver cascade fil), når vi beder om en peer list, så subscriber vi også til trackeren
+                get_file_sha(cascade_file, hash_buf, SHA256_HASH_SIZE);
+
+                completed_casc_file = completed_cascade_file(); // check om  cascasefilen er komplet på klientens computer
+
+                if (completed_cascade_file = 1){
+                    get_peers_list(hash_buf);
+                }
         }
     }
 
-// lyt efter connections 
-int open_listenfd(my_port); // skal vi gøre noget for at sikre, at den er non-blocking? 
+    // lyt efter incoming forbindelser
+    int open_listenfd(my_port); // skal vi gøre noget for at sikre, at den er non-blocking? 
 
-// lad være med at lukke forbindelsen ned, men gå videre til næste step i main og download filer fra peers
-
+    // gå videre til næste step i main og download filer fra peers
+    return;
 } 
 
+
+// funktion der checker om en cascade file er komplet på klientens computer
 int completed_cascade_file(char* cascade_file){
     char output_file[strlen(cascade_file)];
     memcpy(output_file, cascade_file, strlen(cascade_file));
@@ -575,6 +589,7 @@ int completed_cascade_file(char* cascade_file){
     free_resources();
     return 0;
 } 
+
 /*
  * The entry point for the code. Parses command line arguments and starts up the appropriate peer code.
  */
