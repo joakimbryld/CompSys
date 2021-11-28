@@ -533,21 +533,21 @@ void setup_client_server() {
     hashdata_t hash_buf;
 
     // find færdige cascade filer på klientens PC  
-    dp = Opendir("./tests")
+    dp = Opendir("./tests");
 
     while ((dirp = readdir(dp)) != NULL)
         point = dirp->d_name + strlen(dirp->d_name); 
 
-        if((point = strrchr(filename,'.')) != NULL ) {
+        if((point = strrchr(dirp->d_name,'.')) != NULL ) {
 
             if(strcmp(point,".cascade") == 0) { // fil slutter på .cascade
 
                 // subscribe til tracker (for hver cascade fil), når vi beder om en peer list, så subscriber vi også til trackeren
-                get_file_sha(cascade_file, hash_buf, SHA256_HASH_SIZE);
+                get_file_sha(dirp->d_name, hash_buf, SHA256_HASH_SIZE);
 
-                completed_casc_file = completed_cascade_file(); // check om  cascasefilen er komplet på klientens computer
+                completed_casc_file = completed_cascade_file(dirp->d_name); // check om  cascasefilen er komplet på klientens computer
 
-                if (completed_cascade_file = 1){
+                if (completed_casc_file == 1){
                     get_peers_list(hash_buf);
                 }
         }
