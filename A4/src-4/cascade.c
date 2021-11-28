@@ -525,22 +525,56 @@ int get_peers_list(hashdata_t hash)
 
 void setup_client_server() {
 
+
 // find færdige cascade filer på klientens PC    
+// initialiser liste med deres hashes
+// get_file_sha  
 
-// subscribe til tracker og få en liste af peers
-int tracker_socket = Open_clientfd(tracker_ip, tracker_port);
+int completed_casc_file;
 
+// subscribe til tracker (for hver cascade fil) og få en liste af peers
+for (int j=0; j<casc_count; j++)
+    {
+        completed_casc_file = completed_cascade_file();
+        if (completed_cascade_file = 1){
+        get_peers_list();
+        }
+    }
 
-// get_peers_list(hashdata), unsubscriber vi igen, hvis vi lukker vores socket connection til trackeren?
-
-
-// lyt efter connections og accepter kun dem fra good peers
+// lyt efter connections 
 int open_listenfd(my_port); // skal vi gøre noget for at sikre, at den er non-blocking? 
 
 // lad være med at lukke forbindelsen ned, men gå videre til næste step i main og download filer fra peers
 
 } 
 
+int completed_cascade_file(char* cascade_file){
+    char output_file[strlen(cascade_file)];
+    memcpy(output_file, cascade_file, strlen(cascade_file));
+
+    casc_file = csc_parse_file(cascade_file, output_file);
+
+    int uncomp_count = 0;
+    queue = Malloc(casc_file->blockcount * sizeof(csc_block_t*));
+
+    for (uint64_t i = 0; i < casc_file->blockcount; i++)
+    {
+        if (casc_file->blocks[i].completed == 0)
+        {
+            queue[uncomp_count] = &casc_file->blocks[i];
+            uncomp_count++;
+        }
+    }
+
+    if (uncomp_count == 0)
+    {
+        printf("All blocks are already present.\n");
+        free_resources();
+        return 1;
+    }
+    free_resources();
+    return 0;
+} 
 /*
  * The entry point for the code. Parses command line arguments and starts up the appropriate peer code.
  */
@@ -603,7 +637,6 @@ int main(int argc, char **argv)
     }
 
     // sæt os op som server her
-
     setup_client_server(); 
 
     for (int j=0; j<casc_count; j++)
