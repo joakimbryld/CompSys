@@ -61,6 +61,7 @@ void get_data_sha(const char* sourcedata, hashdata_t hash, uint32_t data_size, i
  */
 void get_file_sha(const char* sourcefile, hashdata_t hash, int size)
 {
+
     int casc_file_size;
 
     FILE* fp = Fopen(sourcefile, "rb");
@@ -523,48 +524,12 @@ int get_peers_list(hashdata_t hash)
     return peercount;
 }   
 
-// Ny A4 kode herfra
-void setup_client_server() {
-  
-    DIR *dp;
-    struct dirent *dirp;
-
-    int completed_casc_file;
-    hashdata_t hash_buf;
-
-    // find færdige cascade filer på klientens PC  
-    dp = Opendir("./tests");
-
-    while ((dirp = readdir(dp)) != NULL)
-        point = dirp->d_name + strlen(dirp->d_name); 
-
-        if((point = strrchr(dirp->d_name,'.')) != NULL ) {
-
-            if(strcmp(point,".cascade") == 0) { // fil slutter på .cascade
-
-                // subscribe til tracker (for hver cascade fil), når vi beder om en peer list, så subscriber vi også til trackeren
-                get_file_sha(dirp->d_name, hash_buf, SHA256_HASH_SIZE);
-
-                completed_casc_file = completed_cascade_file(dirp->d_name); // check om  cascasefilen er komplet på klientens computer
-
-                if (completed_casc_file == 1){
-                    get_peers_list(hash_buf);
-                }
-        }
-    }
-
-    // lyt efter incoming forbindelser
-    int open_listenfd(my_port); // skal vi gøre noget for at sikre, at den er non-blocking? 
-
-    // gå videre til næste step i main og download filer fra peers
-    return;
-} 
-
 
 // funktion der checker om en cascade file er komplet på klientens computer
 int completed_cascade_file(char* cascade_file){
     char output_file[strlen(cascade_file)];
     memcpy(output_file, cascade_file, strlen(cascade_file));
+
 
     casc_file = csc_parse_file(cascade_file, output_file);
 
@@ -589,6 +554,92 @@ int completed_cascade_file(char* cascade_file){
     free_resources();
     return 0;
 } 
+
+int endsWith (char *str, char *end) { // taget fra stack overflow
+    size_t slen = strlen (str);
+    size_t elen = strlen (end);
+    if (slen < elen)
+        return 0;
+    return (strcmp (&(str[slen-elen]), end) == 0);
+}
+
+char* concat(const char *s1, const char *s2) // taget fra stack overflow
+{
+    char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
+    // in real code you would check for errors in malloc here
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
+}
+
+
+
+
+
+// Ny A4 kode herfra
+void setup_client_server() {
+
+    DIR *dp;
+    struct dirent *dirp;
+
+    int completed_casc_file;
+    hashdata_t hash_buf;
+
+    // find færdige cascade filer på klientens PC  
+    
+    dp = Opendir("./tests");
+    const char *point;
+
+
+    char *source;
+    char *temp_source;
+    while ((dirp = readdir(dp)) != NULL){
+        printf("%s \n", dirp->d_name);
+
+
+        if (endsWith (dirp->d_name, ".cascade")) { // check om fil slutter på .cascade
+            printf("I'm a cascade file: %s \n", dirp->d_name);
+            printf("Directory name: %s \n", source);
+            
+            source = concat("tests/", dirp->d_name);
+
+            get_file_sha(source, hash_buf, SHA256_HASH_SIZE);
+            printf("hej \n");
+            
+
+            completed_casc_file = completed_cascade_file(source);
+
+            printf("hej2 \n");
+
+            printf("Cascade file completed: %d", completed_casc_file);
+            free(source); // deallocate the string
+        }
+     // header file
+    }       
+
+        //if((point = strrchr(dirp->d_name,'.')) != NULL ) { 
+        //    printf("hej nummer 3\n");
+
+        //    if(strcmp(point,".cascade") == 0) { // fil slutter på .cascade
+        //        printf("fil slutter (if) \n");
+        //        // subscribe til tracker (for hver cascade fil), når vi beder om en peer list, så subscriber vi også til trackeren
+    //             get_file_sha(dirp->d_name, hash_buf, SHA256_HASH_SIZE);
+
+    //             completed_casc_file = completed_cascade_file(dirp->d_name) ; // check om  cascasefilen er komplet på klientens computer
+
+    //             if (completed_casc_file == 1){
+    //                 get_peers_list(hash_buf);
+    //             }
+    //     }
+    // }
+    
+    // lyt efter incoming forbindelser
+    //int open_listenfd(my_port); // skal vi gøre noget for at sikre, at den er non-blocking? 
+
+    // gå videre til næste step i main og download filer fra peers
+    return;
+} 
+
 
 /*
  * The entry point for the code. Parses command line arguments and starts up the appropriate peer code.
@@ -652,7 +703,7 @@ int main(int argc, char **argv)
     }
 
     // sæt os op som server her
-    setup_client_server(); 
+    //setup_client_server(); 
 
     for (int j=0; j<casc_count; j++)
     {
