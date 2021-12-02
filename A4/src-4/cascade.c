@@ -270,6 +270,7 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
     SHA256_CTX shactx;
     for(uint64_t i = 0; i < res->blockcount; i++)
     {
+        printf("Before break \n");
         hashdata_t shabuffer;
         uint64_t size = res->blocks[i].length;
         if (fread(buffer, size, 1, fp) != 1)
@@ -527,9 +528,13 @@ int get_peers_list(hashdata_t hash)
 
 // funktion der checker om en cascade file er komplet på klientens computer
 int completed_cascade_file(char* cascade_file){
+
     char output_file[strlen(cascade_file)];
     memcpy(output_file, cascade_file, strlen(cascade_file));
-
+    char* r = strstr(cascade_file, "cascade");
+    int cutoff = r - cascade_file ;
+    output_file[cutoff-1] = '\0';
+    printf("Output file: %s\n", output_file);
 
     casc_file = csc_parse_file(cascade_file, output_file);
 
@@ -541,6 +546,7 @@ int completed_cascade_file(char* cascade_file){
         if (casc_file->blocks[i].completed == 0)
         {
             queue[uncomp_count] = &casc_file->blocks[i];
+            printf("%hhu", casc_file->blocks[i].completed);
             uncomp_count++;
         }
     }
@@ -590,28 +596,21 @@ void setup_client_server() {
     dp = Opendir("./tests");
     const char *point;
 
-
     char *source;
     char *temp_source;
     while ((dirp = readdir(dp)) != NULL){
-        printf("%s \n", dirp->d_name);
-
+        printf("Looking at file %s \n", dirp->d_name);
 
         if (endsWith (dirp->d_name, ".cascade")) { // check om fil slutter på .cascade
             printf("I'm a cascade file: %s \n", dirp->d_name);
-            printf("Directory name: %s \n", source);
-            
             source = concat("tests/", dirp->d_name);
 
-            get_file_sha(source, hash_buf, SHA256_HASH_SIZE);
-            printf("hej \n");
+            printf("Directory name: %s \n", source);
             
-
+            get_file_sha(source, hash_buf, SHA256_HASH_SIZE);
+    
             completed_casc_file = completed_cascade_file(source);
-
-            printf("hej2 \n");
-
-            printf("Cascade file completed: %d", completed_casc_file);
+            printf("Cascade file complete status: %d\n\n", completed_casc_file);
             free(source); // deallocate the string
         }
      // header file
@@ -703,7 +702,8 @@ int main(int argc, char **argv)
     }
 
     // sæt os op som server her
-    //setup_client_server(); 
+    //
+    setup_client_server(); 
 
     for (int j=0; j<casc_count; j++)
     {
