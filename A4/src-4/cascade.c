@@ -641,7 +641,7 @@ void setup_client_server() {
             subscribe_to_tracker(hash_buf);
 
             //if (completed_casc_file == 1){
-            //     get_peers_list(hash_buf);
+            //     subscribe_to_tracker(hash_buf);
             //}
 
             int listen = open_listenfd(my_port);
