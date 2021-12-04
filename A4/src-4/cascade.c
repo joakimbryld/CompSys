@@ -270,7 +270,7 @@ csc_file_t* csc_parse_file(const char* sourcefile, const char* destination)
     SHA256_CTX shactx;
     for(uint64_t i = 0; i < res->blockcount; i++)
     {
-        printf("Before break \n");
+    
         hashdata_t shabuffer;
         uint64_t size = res->blocks[i].length;
         if (fread(buffer, size, 1, fp) != 1)
@@ -546,7 +546,7 @@ int completed_cascade_file(char* cascade_file){
         if (casc_file->blocks[i].completed == 0)
         {
             queue[uncomp_count] = &casc_file->blocks[i];
-            printf("%hhu", casc_file->blocks[i].completed);
+            //printf("%hhu", casc_file->blocks[i].completed);
             uncomp_count++;
         }
     }
@@ -578,9 +578,35 @@ char* concat(const char *s1, const char *s2) // taget fra stack overflow
     return result;
 }
 
+void subscribe_to_tracker(hashdata_t hash){
+    rio_t rio;
+    char msg_buf[MAXLINE];
 
+    int tracker_socket = Open_clientfd(tracker_ip, tracker_port);
+    Rio_readinitb(&rio, tracker_socket);
 
+    struct RequestHeader request_header;
+    // memcpy as it does not end with terminating null byte.
+    memcpy(request_header.protocol, "CASC", sizeof(request_header.protocol));
 
+    request_header.version = htonl(1);
+    request_header.command = htonl(2);
+    request_header.length = htonl(BODY_SIZE);
+    memcpy(msg_buf, &request_header, HEADER_SIZE);
+
+    struct in_addr byte_my_ip;
+    inet_aton(my_ip, &byte_my_ip);
+
+    struct RequestBody request_body;
+    memcpy(request_body.hash, hash, SHA256_HASH_SIZE);
+    request_body.ip = byte_my_ip;
+    request_body.port = htons(atoi(my_port));
+    memcpy(msg_buf + HEADER_SIZE, &request_body, BODY_SIZE);
+
+    Rio_writen(tracker_socket, msg_buf, MESSAGE_SIZE);
+
+    // kald free her
+}
 
 // Ny A4 kode herfra
 void setup_client_server() {
@@ -591,10 +617,9 @@ void setup_client_server() {
     int completed_casc_file;
     hashdata_t hash_buf;
 
-    // find færdige cascade filer på klientens PC  
-    
     dp = Opendir("./tests");
     const char *point;
+    int peercount = 0;
 
     char *source;
     char *temp_source;
@@ -610,33 +635,24 @@ void setup_client_server() {
             get_file_sha(source, hash_buf, SHA256_HASH_SIZE);
     
             completed_casc_file = completed_cascade_file(source);
+
             printf("Cascade file complete status: %d\n\n", completed_casc_file);
-            free(source); // deallocate the string
+
+            subscribe_to_tracker(hash_buf);
+
+            //if (completed_casc_file == 1){
+            //     get_peers_list(hash_buf);
+            //}
+
+            int listen = open_listenfd(my_port);
+
         }
-     // header file
+        //free(source);
+
     }       
 
-        //if((point = strrchr(dirp->d_name,'.')) != NULL ) { 
-        //    printf("hej nummer 3\n");
-
-        //    if(strcmp(point,".cascade") == 0) { // fil slutter på .cascade
-        //        printf("fil slutter (if) \n");
-        //        // subscribe til tracker (for hver cascade fil), når vi beder om en peer list, så subscriber vi også til trackeren
-    //             get_file_sha(dirp->d_name, hash_buf, SHA256_HASH_SIZE);
-
-    //             completed_casc_file = completed_cascade_file(dirp->d_name) ; // check om  cascasefilen er komplet på klientens computer
-
-    //             if (completed_casc_file == 1){
-    //                 get_peers_list(hash_buf);
-    //             }
-    //     }
-    // }
-    
-    // lyt efter incoming forbindelser
-    //int open_listenfd(my_port); // skal vi gøre noget for at sikre, at den er non-blocking? 
-
-    // gå videre til næste step i main og download filer fra peers
-    return;
+    printf("Serving forever. \n");
+    while (1){}
 } 
 
 
@@ -702,13 +718,14 @@ int main(int argc, char **argv)
     }
 
     // sæt os op som server her
-    //
     setup_client_server(); 
 
     for (int j=0; j<casc_count; j++)
     {
         download_only_peer(cascade_files[j]);
     }
+
+
 
     exit(EXIT_SUCCESS);
 }
