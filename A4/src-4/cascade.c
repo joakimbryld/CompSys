@@ -608,7 +608,7 @@ void subscribe_to_tracker(hashdata_t hash){
     // kald free her
 }
 
-void serve_block(){
+void serve_block(int listening_socket, int peer_socket){
 
     // peer request her block fra peer her
     //file.cascadehash, block.index, block.length
@@ -664,24 +664,24 @@ void setup_client_server() {
 
             //if (completed_casc_file == 1){
             //     subscribe_to_tracker(hash_buf);
-            //}
-
-            int listen = open_listenfd(my_port);           
+            //}       
             
         }
         //free(source);
 
     }       
 
+    int listening_socket = open_listenfd(my_port);    
+    printf("Serving forever. \n");
     while (1){
         
-        //serve_block();
-        
-        //int acc = accept(my_socket,NULL,NULL);}
-        //int len = read(my_socket, buffer, 2);
-
-    } 
+        // selvom vi er i et while loop blocker accept indtil connection
+        // function returnerer fd for vores peer
+        int peer_socket = accept(listening_socket, NULL, NULL); 
+        serve_block(listening_socket, peer_socket);
+    }
 } 
+ 
 
 
 /*
