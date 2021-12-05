@@ -642,7 +642,7 @@ void serve_blocks(int listening_socket, int peer_socket){
             if (endsWith (dirp->d_name, ".cascade")) { // check om fil slutter på .cascade
                 source = concat("tests/", dirp->d_name);
                 get_file_sha(source, hash_buf, SHA256_HASH_SIZE);
-                if (hash_buf==request_hash){
+                if (memcmp(hash_buf, request_hash, SHA256_HASH_SIZE)){
                     break; // ved dette break har vi fat i den source, den stemmer overens med request_hash
                 }
         }
@@ -677,9 +677,9 @@ void serve_blocks(int listening_socket, int peer_socket){
     strcpy(response.status_code, "0");
 
     // send data til peer
-    char msg_buf[8];
-    memcpy(msg_buf, &requested_data, 8);
-    Rio_writen(peer_socket, msg_buf, 8);
+    char msg_buf[9];
+    memcpy(msg_buf, &requested_data, 9);
+    Rio_writen(peer_socket, msg_buf, 9);
 
     }    
 
