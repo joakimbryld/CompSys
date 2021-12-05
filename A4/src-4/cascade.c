@@ -604,27 +604,82 @@ void subscribe_to_tracker(hashdata_t hash){
     memcpy(msg_buf + HEADER_SIZE, &request_body, BODY_SIZE);
 
     Rio_writen(tracker_socket, msg_buf, MESSAGE_SIZE);
+    
 
     // kald free her
 }
 
-void serve_block(int listening_socket, int peer_socket){
+void serve_blocks(int listening_socket, int peer_socket){
 
-    // peer request her block fra peer her
-    //file.cascadehash, block.index, block.length
+    rio_t rio;
+    char peer_request[PEER_REQUEST_HEADER_SIZE];
+    uint8_t request_hash[SHA256_HASH_SIZE];
+    int block_index;
+
+    rio_readinitb(&rio, peer_socket);//listening_socket);
+    Rio_readnb(&rio, peer_request, PEER_REQUEST_HEADER_SIZE);
+    printf("%s \n", peer_request);
+
+    block_index = be64toh(*(uint64_t*)&peer_request[24]);
+    memcpy(request_hash, peer_request+32, SHA256_HASH_SIZE);
+
+    // find fil, der har det hash
+    DIR *dp;
+    struct dirent *dirp;
+
+    char *source;
+    char *temp_source;
+    hashdata_t hash_buf;
+
+    dp = Opendir("./tests");
+    const char *point;
+
+    struct sockaddr_storage clientaddr;
+    socklen_t clientlen;
+
+    while ((dirp = readdir(dp)) != NULL){
+            
+            if (endsWith (dirp->d_name, ".cascade")) { // check om fil slutter på .cascade
+                source = concat("tests/", dirp->d_name);
+                get_file_sha(source, hash_buf, SHA256_HASH_SIZE);
+                if (hash_buf==request_hash){
+                    break; // ved dette break har vi fat i den source, den stemmer overens med request_hash
+                }
+        }
+    }    
+
 
     // åbner request fil og finder den relevante blok
     const char* request_file;
-    char requested_data;
-    int block_index;
+    char requested_data[MAX_LINE];
     int block_length;
 
-    FILE* f = fopen(request_file, "r");
+    char output_file[strlen(source)];
+    memcpy(output_file, source, strlen(source));
+    char* r = strstr(source, "cascade");
+    int cutoff = r - source ;
+    output_file[cutoff-1] = '\0';
+    printf("Downloading to: %s\n", output_file);
+
+    casc_file = csc_parse_file(source, output_file);
+
+    FILE* f = fopen(output_file, "r");
     fseek(f, block_index, SEEK_SET);
-    fread(&requested_data, block_length, 1, f);
+    fread(&requested_data, casc_file->blocksize, 1, f);
     fclose(f);
 
+    struct response_body {
+        char status_code[1];
+        char response_data[MAX_LINE];};
+
+    struct response_body response;
+    strcpy(response.response_data, requested_data);
+    strcpy(response.status_code, "0");
+
     // send data til peer
+    char msg_buf[8];
+    memcpy(msg_buf, &requested_data, 8);
+    Rio_writen(peer_socket, msg_buf, 8);
 
     }    
 
@@ -641,6 +696,8 @@ void setup_client_server() {
     dp = Opendir("./tests");
     const char *point;
 
+    struct sockaddr_storage clientaddr;
+    socklen_t clientlen;
     // outputfilnavn
 
     char *source;
@@ -677,8 +734,10 @@ void setup_client_server() {
         
         // selvom vi er i et while loop blocker accept indtil connection
         // function returnerer fd for vores peer
-        int peer_socket = accept(listening_socket, NULL, NULL); 
-        serve_block(listening_socket, peer_socket);
+        clientlen = sizeof(struct sockaddr_storage);
+        int peer_socket = accept(listening_socket, (SA *)&clientaddr, &clientlen); 
+        assert(peer_socket != -1);
+        serve_blocks(listening_socket, peer_socket);
     }
 } 
  
