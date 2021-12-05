@@ -608,6 +608,27 @@ void subscribe_to_tracker(hashdata_t hash){
     // kald free her
 }
 
+void serve_block(){
+
+    // peer request her block fra peer her
+    //file.cascadehash, block.index, block.length
+
+    // åbner request fil og finder den relevante blok
+    const char* request_file;
+    char requested_data;
+    int block_index;
+    int block_length;
+
+    FILE* f = fopen(request_file, "r");
+    fseek(f, block_index, SEEK_SET);
+    fread(&requested_data, block_length, 1, f);
+    fclose(f);
+
+    // send data til peer
+
+    }    
+
+
 // Ny A4 kode herfra
 void setup_client_server() {
 
@@ -619,7 +640,8 @@ void setup_client_server() {
 
     dp = Opendir("./tests");
     const char *point;
-    int peercount = 0;
+
+    // outputfilnavn
 
     char *source;
     char *temp_source;
@@ -644,15 +666,21 @@ void setup_client_server() {
             //     subscribe_to_tracker(hash_buf);
             //}
 
-            int listen = open_listenfd(my_port);
-
+            int listen = open_listenfd(my_port);           
+            
         }
         //free(source);
 
     }       
 
-    printf("Serving forever. \n");
-    while (1){}
+    while (1){
+        
+        //serve_block();
+        
+        //int acc = accept(my_socket,NULL,NULL);}
+        //int len = read(my_socket, buffer, 2);
+
+    } 
 } 
 
 
