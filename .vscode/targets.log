@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Wed Dec  8 14:15:53 2021
+# Make data base, printed on Sat Dec 11 16:03:23 2021
 
 # Variables
 
@@ -38,11 +38,11 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/8x/kkk8_zjj2gl_ql9n04l8h9fr0000gn/T/vscode-ipc-9d66210e-72da-41ae-a333-f423ae67b7c8.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/8x/kkk8_zjj2gl_ql9n04l8h9fr0000gn/T/vscode-ipc-3d71e065-77e1-48eb-87c8-ced16c29784c.sock
 # environment
 VSCODE_CWD = /
 # environment
-PATH = /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands
+PATH = /Users/jacob/opt/anaconda3/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands
 # environment
 VSCODE_LOG_STACK = false
 # environment
@@ -50,7 +50,7 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.qXB5nwQ8q8/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.vemSDubCAa/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -66,7 +66,7 @@ HOME = /Users/jacob
 # default
 MAKEFILEPATH = $(shell /usr/bin/xcode-select -print-path 2>/dev/null || echo /Developer)/Makefiles
 # environment
-VSCODE_CODE_CACHE_PATH = /Users/jacob/Library/Application Support/Code/CachedData/ccbaa2d27e38e5afa3e5c21c1c7bef4657064247
+VSCODE_CODE_CACHE_PATH = /Users/jacob/Library/Application Support/Code/CachedData/7db1a2b88f7557e0a43fec75b6ba7e50b3e9f77e
 # environment
 LOGNAME = jacob
 # environment
@@ -83,6 +83,8 @@ MAKE = $(MAKE_COMMAND)
 MAKECMDGOALS := all
 # environment
 SHLVL = 1
+# environment
+BLOCKSIZE = 512
 # default
 MAKE_VERSION := 3.81
 # environment
@@ -100,7 +102,7 @@ TMPDIR = /var/folders/8x/kkk8_zjj2gl_ql9n04l8h9fr0000gn/T/
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /Users/jacob/Library/Application Support/Code/1.62.3-main.sock
+VSCODE_IPC_HOOK = /Users/jacob/Library/Application Support/Code/1.63.0-main.sock
 # makefile
 MAKEFLAGS = Rrqp
 # environment
@@ -108,7 +110,7 @@ MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.11262305.11262311
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.12231382.12231389
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # automatic
@@ -134,9 +136,9 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 3245
+VSCODE_PID = 1881
 # variable set hash-table stats:
-# Load=62/1024=6%, Rehash=0, Collisions=1/83=1%
+# Load=63/1024=6%, Rehash=0, Collisions=1/84=1%
 
 # Pattern-specific Variable Values
 
@@ -144,9 +146,9 @@ VSCODE_PID = 3245
 
 # Directories
 
-# . (device 16777221, inode 11317754): 13 files, no impossibilities.
+# . (device 16777222, inode 11317754): 14 files, no impossibilities.
 
-# 13 files, no impossibilities in 1 directories.
+# 14 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -218,7 +220,7 @@ GNUmakefile:
 # strcache size: total = 0 / max = 0 / min = 4096 / avg = 0
 # strcache free: total = 0 / max = 0 / min = 4096 / avg = 0
 
-# Finished Make data base on Wed Dec  8 14:15:53 2021
+# Finished Make data base on Sat Dec 11 16:03:23 2021
 
  
 make: *** No rule to make target `all'.  Stop.
