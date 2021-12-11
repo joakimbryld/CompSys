@@ -1,0 +1,5 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/jacob/Downloads/src-5'
+gcc -Wall -std=c11 -g -ggdb *.c -o sim
+make: Leaving directory `/Users/jacob/Downloads/src-5'
+ 

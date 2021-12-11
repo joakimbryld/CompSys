@@ -1,7 +1,6 @@
 make --dry-run --always-make --keep-going --print-directory
 make: Entering directory `/Users/jacob/Desktop/A0 Compsys/CompSysA0'
+make: Leaving directory `/Users/jacob/Desktop/A0 Compsys/CompSysA0'
  
 make: *** No targets specified and no makefile found.  Stop.
- 
-make: Leaving directory `/Users/jacob/Desktop/A0 Compsys/CompSysA0'
  
