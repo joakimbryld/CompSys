@@ -107,12 +107,12 @@ int main(int argc, char* argv[]) {
         val shamt = pick_bits(0, 4, inst_bytes[2]);
 
         // decode instruction type from major operation code
-        bool is_return_or_stop = is(RETURN_STOP, major_op);
-        bool is_reg_arithmetic = is(REG_ARITHMETIC, major_op);
-        bool is_imm_arithmetic = is(IMM_ARITHMETIC, major_op);
-        bool is_reg_movq = is(REG_MOVQ, major_op);
-        bool is_imm_movq = is(IMM_MOVQ, major_op);
-        bool is_reg_movq_mem = is(REG_MOVQ_MEM, major_op);
+        bool is_return_or_stop = is(RETURN_STOP, major_op); 
+        bool is_reg_arithmetic = is(REG_ARITHMETIC, major_op); 
+        bool is_imm_arithmetic = is(IMM_ARITHMETIC, major_op); 
+        bool is_reg_movq = is(REG_MOVQ, major_op); 
+        bool is_imm_movq = is(IMM_MOVQ, major_op); 
+        bool is_reg_movq_mem = is(REG_MOVQ_MEM, major_op); 
         bool is_imm_movq_mem = is(IMM_MOVQ_MEM, major_op);
         bool is_cflow = is(CFLOW, major_op); /* note that this signal does not include return - though logically it could */
         bool is_leaq2  = is(LEAQ2, major_op);
@@ -121,10 +121,28 @@ int main(int argc, char* argv[]) {
         bool is_leaq7  = is(LEAQ7, major_op);
         bool is_imm_cbranch = is(IMM_CBRANCH, major_op);
 
+        
+
+        bool two = is_reg_movq || is_return_or_stop || is_reg_arithmetic || is_leaq2 || is_reg_movq_mem;
+        bool three = is_leaq3;
+        bool six =  is_imm_movq_mem || is_imm_arithmetic || is_cflow || is_leaq6 || is_imm_movq; 
+        bool seven = is_leaq7;
+        bool ten = is_imm_cbranch;
+
+
+        val pre_ins_size = or(use_if(two,  from_int(2)),
+                    or(use_if(three, from_int(3)),
+                       or(use_if(six, from_int(6)),
+                          or(use_if(seven, from_int(7)),
+                         use_if(ten, from_int(10))))));
+
+        val ins_size = pre_ins_size;
+
         // Right now, we can only execute instructions with a size of 2.
         // TODO 2021:
         // from info above determine the instruction size
-        val ins_size = from_int(2); 
+
+
 
         // broad categorization of the instruction
         bool is_leaq = is_leaq2 || is_leaq3 || is_leaq6 || is_leaq7;
