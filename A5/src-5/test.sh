@@ -12,10 +12,10 @@ set -e
 make
 
 # The command with which you run PRUN: You should likely change this variable
-PRUN=prun
+PRUN=python3 x86prime_tools/prun.py
 
 # The command with which you run PRASM: You should likely change this variable
-PRASM=prasm
+PRASM=python3 x86prime_tools/prasm.py
 
 TESTLOC=tests
 TESTDIR=test_runs
@@ -42,7 +42,7 @@ for f in tests/*.prime; do
 
   # Generate hex file
   hexfile=$TESTDIR/$fname.hex
-  $PRASM $f
+  ${PRASM} $f
   mv $TESTLOC/$fname.hex $TESTDIR/
   mv $TESTLOC/$fname.sym $TESTDIR/
 

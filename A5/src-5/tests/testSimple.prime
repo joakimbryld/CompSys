@@ -1,0 +1,5 @@
+start:
+    movq $10, %rax
+    subq $8, %rax                       	                  	                                
+    addq %rax, %rsp                       	
+    stop

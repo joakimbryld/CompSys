@@ -122,13 +122,16 @@ int main(int argc, char* argv[]) {
         bool is_imm_cbranch = is(IMM_CBRANCH, major_op);
 
         
-
+        // størrelsen af forskellige instruktioner:
         bool two = is_reg_movq || is_return_or_stop || is_reg_arithmetic || is_leaq2 || is_reg_movq_mem;
         bool three = is_leaq3;
         bool six =  is_imm_movq_mem || is_imm_arithmetic || is_cflow || is_leaq6 || is_imm_movq; 
         bool seven = is_leaq7;
         bool ten = is_imm_cbranch;
 
+        // Right now, we can only execute instructions with a size of 2.
+        // TODO 2021:
+        // from info above determine the instruction size
 
         val pre_ins_size = or(use_if(two,  from_int(2)),
                     or(use_if(three, from_int(3)),
@@ -137,11 +140,6 @@ int main(int argc, char* argv[]) {
                          use_if(ten, from_int(10))))));
 
         val ins_size = pre_ins_size;
-
-        // Right now, we can only execute instructions with a size of 2.
-        // TODO 2021:
-        // from info above determine the instruction size
-
 
 
         // broad categorization of the instruction
@@ -160,6 +158,18 @@ int main(int argc, char* argv[]) {
         bool is_load  = false; // TODO 2021: Detect when we're executing a load
         bool is_store = false; // TODO 2021: Detect when we're executing a store
         bool is_conditional = false; // TODO 2021: Detect if we are executing a conditional flow change
+
+        val TRUE = true;  
+
+        val pre_execution = or(use_if(is_mem_access, is_load = true),
+                    or(use_if(three, from_int(3)),
+                       or(use_if(six, from_int(6)),
+                          or(use_if(seven, from_int(7)),
+                         use_if(ten, from_int(10))))));   
+
+        
+
+
 
         // TODO 2021: Add additional control signals you may need below....
 
