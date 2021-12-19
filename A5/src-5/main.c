@@ -160,19 +160,14 @@ int main(int argc, char* argv[]) {
         bool is_conditional = false; // TODO 2021: Detect if we are executing a conditional flow change
 
 
-
-
-        bool is_load = reduce_or(use_if(is_mem_access, from_int(1))) || reduce_or(use_if(is_return, from_int(1)));
-                    
-        bool is_store = reduce_or(use_if(is_leaq, from_int(1))) || reduce_or(use_if(is_move, from_int(1)));
-                   
+        bool is_load = reduce_or(use_if(is_mem_access, from_int(1))) || reduce_or(use_if(is_return, from_int(1)));        
+        bool is_store = reduce_or(use_if(is_leaq, from_int(1))) || reduce_or(use_if(is_move, from_int(1)));      
         bool is_conditional = reduce_or(use_if(is_call, from_int(1))) || reduce_or(use_if(is_stop, from_int(1)));
-
-        
-
 
 
         // TODO 2021: Add additional control signals you may need below....
+
+        bool is_jump = is(JMP, minor_op);
 
 
         // setting up operand fetch and register read and write for the datapath:
@@ -246,6 +241,9 @@ int main(int argc, char* argv[]) {
         // determine the next position of the program counter
         // TODO 2021: Add any additional sources for the next PC (for call, ret, jmp and conditional branch)
         val pc_next = pc_incremented;
+
+        
+
 
         /*** MEMORY ***/
         // read from memory if needed
