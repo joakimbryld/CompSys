@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
 
         bool is_load = reduce_or(use_if(is_mem_access, from_int(1))) || reduce_or(use_if(is_return, from_int(1)));        
         bool is_store = reduce_or(use_if(is_leaq, from_int(1))) || reduce_or(use_if(is_move, from_int(1)));      
-        bool is_conditional = reduce_or(use_if(is_call, from_int(1))) || reduce_or(use_if(is_stop, from_int(1)));
+        bool is_conditional =  reduce_or(use_if(is_stop, from_int(1))) || reduce_or(use_if(is_imm_cbranch, from_int(1)));
 
 
         // TODO 2021: Add additional control signals you may need below....
@@ -240,11 +240,16 @@ int main(int argc, char* argv[]) {
 
         // determine the next position of the program counter
         // TODO 2021: Add any additional sources for the next PC (for call, ret, jmp and conditional branch)
-        val pc_next = pc_incremented;
+        
+        bool cond = comparator(minor_op, reg_out_a, op_b);
+
+        val pc_next = or(use_if(is_jump, sext_imm_p),
+                    or(use_if(is_return, reg_out_b),
+                       or(use_if(is_conditional && cond, imm_p),
+                       (use_if(!is_conditional || !cond, pc_incremented)))));
+
 
         
-
-
         /*** MEMORY ***/
         // read from memory if needed
         val mem_out = memory_read(mem, agen_result, is_load);
@@ -255,6 +260,7 @@ int main(int argc, char* argv[]) {
         bool use_compute_result = !is_load && (use_agen || use_multiplier || use_shifter || use_direct || use_alu);
         val datapath_result = or(use_if(use_compute_result, compute_result),
                                  use_if(is_load, mem_out));
+
 
         // write to register if needed
         reg_write(regs, reg_d, datapath_result, reg_wr_enable);
