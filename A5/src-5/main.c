@@ -258,8 +258,10 @@ int main(int argc, char* argv[]) {
         // choose result to write back to register
         // TODO 2021: Add any additional results which need to be muxed in for writing to the destination register
         bool use_compute_result = !is_load && (use_agen || use_multiplier || use_shifter || use_direct || use_alu);
-        val datapath_result = or(use_if(use_compute_result, compute_result),
-                                 use_if(is_load, mem_out));
+        val datapath_result = or(or(or(use_if(use_compute_result, compute_result),
+                                 use_if(is_load, mem_out)),
+                                use_if(is_return, reg_s)),
+                                 use_if(is_call, add(pc, from_int(6))));
 
 
         // write to register if needed
