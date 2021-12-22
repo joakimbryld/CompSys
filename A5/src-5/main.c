@@ -156,9 +156,16 @@ int main(int argc, char* argv[]) {
 
         // unimplemented control signals:
 
-        bool is_load = reduce_or(use_if(is_mem_access, from_int(1))) || reduce_or(use_if(is_return, from_int(1)));        
-        bool is_store = reduce_or(use_if(is_leaq, from_int(1))) || reduce_or(use_if(is_move, from_int(1)));      
-        bool is_conditional =  reduce_or(use_if(is_stop, from_int(1))) || reduce_or(use_if(is_imm_cbranch, from_int(1)));
+        bool load1  = is(0011, minor_op) && is(0001, major_op);
+        bool load2 = is(0111, minor_op) && is(0101, major_op);
+
+        bool store1 = is(0011, minor_op) && is(1001, major_op);
+        bool store2 = is(0111, minor_op) && is(1101, major_op);
+        
+
+        bool is_load = reduce_or(use_if(load1, from_int(1))) || reduce_or(use_if(load2, from_int(1))); 
+        bool is_store = reduce_or(use_if(store1, from_int(1))) || reduce_or(use_if(store2, from_int(1))) || reduce_or(use_if(is_return, from_int(1)));
+        bool is_conditional = reduce_or(use_if(is_imm_cbranch, from_int(1)));
 
 
         // TODO 2021: Add additional control signals you may need below....
