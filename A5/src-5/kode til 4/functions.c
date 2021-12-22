@@ -1,8 +1,8 @@
 
 
-int first_function(int rdx, int rcx, int rsi, int rdi){
-    int temp;
-    int rval = 0;
+long first_function(long rdx, long rcx, long rsi,  long rdi){
+    long temp;
+    long rval = 0;
 
     while(rdx <= rval){
         temp = rsi + 8*rval;
@@ -15,10 +15,10 @@ int first_function(int rdx, int rcx, int rsi, int rdi){
 }
 
 
-int second_function(int *rdi, int rcx, int rdx){
-    int temp;
-    int rsi;
-    int *rval;
+long second_function(long *rdi, long rcx, long rdx){
+    long temp;
+    long rsi;
+    long *rval;
     temp = *rdi + rcx*8;
 
     if (temp == *rdi){
