@@ -155,10 +155,6 @@ int main(int argc, char* argv[]) {
         bool imm_p_pos6 = is_imm_cbranch; /* all other at position 2 */
 
         // unimplemented control signals:
-        bool is_load  = false; // TODO 2021: Detect when we're executing a load
-        bool is_store = false; // TODO 2021: Detect when we're executing a store
-        bool is_conditional = false; // TODO 2021: Detect if we are executing a conditional flow change
-
 
         bool is_load = reduce_or(use_if(is_mem_access, from_int(1))) || reduce_or(use_if(is_return, from_int(1)));        
         bool is_store = reduce_or(use_if(is_leaq, from_int(1))) || reduce_or(use_if(is_move, from_int(1)));      
