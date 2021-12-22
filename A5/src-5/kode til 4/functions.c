@@ -33,11 +33,12 @@ long second_function(long *rdi, long rcx, long rdx){
             rdi = rval;
         }
 
+        else   {   
+        *rdi = rcx;  
         rdi += 8;
         rsi += 8;
         rdx += 8;
-
-        rcx = *rdi;
+        }
     }
 
     return *rval;
