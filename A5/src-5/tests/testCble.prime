@@ -1,0 +1,5 @@
+test:
+    cble %rdx, %rax, .L4
+
+.L4:
+    stop

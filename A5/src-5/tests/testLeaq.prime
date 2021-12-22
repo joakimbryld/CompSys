@@ -1,0 +1,7 @@
+test:
+    leaq (%rdi, %rcx, 8), %r8
+    movq %rsi, %rax  
+    cble %rdx, %rax, .L4
+
+.L4:
+    stop

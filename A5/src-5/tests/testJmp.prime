@@ -1,0 +1,6 @@
+test:
+    jmp .L4
+
+.L4:
+    movq %rsi, %rax 
+    stop
